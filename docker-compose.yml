@@ -1,0 +1,32 @@
+services:
+  postgres:
+    image: postgres:17
+    container_name: fleetgo-postgres
+    environment:
+      POSTGRES_USER: fleetgo
+      POSTGRES_PASSWORD: fleetgo_password
+      POSTGRES_DB: fleetgo
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7
+    container_name: fleetgo-redis
+    ports:
+      - "6379:6379"
+
+  api:
+    build: .
+    container_name: fleetgo-api
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    depends_on:
+      - postgres
+      - redis
+
+volumes:
+  postgres_data:
