@@ -1,4 +1,32 @@
 services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    working_dir: /workspace
+    volumes:
+      - .:/workspace
+      # /opt/venv lives inside image, NOT under /workspace,
+      # so bind-mount no longer hides installed deps.
+      # Exclude host noise from container:
+      - /workspace/__pycache__
+      - /workspace/.venv
+      - /workspace/tests/__pycache__
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    environment:
+      UV_PROJECT_ENVIRONMENT: /opt/venv
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    command: ["uv", "run", "fastapi", "dev", "app/main.py", "--host", "0.0.0.0", "--port", "8000"]
+    stdin_open: true
+    tty: true
+
   postgres:
     image: postgres:17
     container_name: fleetgo-postgres
@@ -7,26 +35,25 @@ services:
       POSTGRES_PASSWORD: fleetgo_password
       POSTGRES_DB: fleetgo
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U fleetgo -d fleetgo"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
   redis:
     image: redis:7
     container_name: fleetgo-redis
     ports:
       - "6379:6379"
-
-  api:
-    build: .
-    container_name: fleetgo-api
-    ports:
-      - "8000:8000"
-    env_file:
-      - .env
-    depends_on:
-      - postgres
-      - redis
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
 volumes:
   postgres_data:

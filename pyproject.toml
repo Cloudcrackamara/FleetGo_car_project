@@ -2,7 +2,7 @@
 name = "FleetGo-car-project"
 version = "0.1.0"
 description = "FleetGo car rental fleet management API"
-readme = "README.md"
+
 requires-python = ">=3.13"
 dependencies = [
     "alembic>=1.20.0",
