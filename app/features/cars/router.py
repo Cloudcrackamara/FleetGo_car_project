@@ -5,7 +5,6 @@ from fastapi import APIRouter, Depends, status
 from app.core.dependencies import DbSession, require_role
 from app.features.cars import schemas, service
 
-
 router = APIRouter(tags=["cars"])
 
 
