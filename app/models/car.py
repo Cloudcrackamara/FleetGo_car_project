@@ -1,6 +1,7 @@
 # app/models/car.py
-from sqlmodel import Field, SQLModel
 from enum import Enum
+
+from sqlmodel import Field, SQLModel
 
 
 class CarStatus(str, Enum):

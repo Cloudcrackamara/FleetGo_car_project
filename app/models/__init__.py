@@ -1,6 +1,6 @@
 # This makes alembic discover all models
 
-from app.models import (  # noqa: F401
+from app.models import (
     car,
     payment,
     pricing,

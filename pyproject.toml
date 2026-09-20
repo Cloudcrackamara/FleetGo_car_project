@@ -10,5 +10,6 @@ dependencies = [
     "firebase-admin>=7.5.0",
     "psycopg[binary]>=3.3.5",
     "pydantic-settings>=2.15.0",
+    "pytest>=9.1.1",
     "sqlmodel>=0.0.42",
 ]

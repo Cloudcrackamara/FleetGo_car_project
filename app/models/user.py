@@ -1,5 +1,7 @@
 from enum import Enum
-from sqlmodel import Field,SQLModel
+
+from sqlmodel import Field, SQLModel
+
 
 class UserRole(str,Enum):
     CUSTOMER ="customer"

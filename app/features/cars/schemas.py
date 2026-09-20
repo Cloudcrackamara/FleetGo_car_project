@@ -6,7 +6,6 @@ from sqlmodel import SQLModel
 
 from app.models.car import CarStatus
 
-
 # ---- Car -----------------------------------------------------------
 
 class CarCreate(SQLModel):
