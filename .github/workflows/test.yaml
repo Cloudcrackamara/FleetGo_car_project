@@ -48,7 +48,7 @@ jobs:
         run: uv sync --frozen
 
       - name: Lint
-        run: uv run ruff check .
+        run: uvx ruff check .
 
       - name: Test
         run: uv run pytest -v
