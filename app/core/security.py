@@ -28,7 +28,7 @@ def verify_password(plain: str, hashed: str) -> bool:
             "sha256", plain.encode(), bytes.fromhex(salt_hex), int(iters)
         )
         return hmac.compare_digest(dk.hex(), hash_hex)
-    except Exception:
+    except (AssertionError, ValueError, TypeError, AttributeError, IndexError):
         return False
 
 
