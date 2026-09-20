@@ -4,8 +4,24 @@ from fastapi import Depends, FastAPI
 from sqlmodel import Session, text
 
 from app.db.session import get_session
+from app.core.config import settings
+from app.core.error import register_error_handlers
+from app.middleware import RequestContextMiddleware
+from app.features.cars.router import router as cars_router
+from app.middleware.request_id import RequestIDMiddleware
+from app.middleware.timing import TimingMiddleware
 
-app = FastAPI()
+
+app = FastAPI(title="FleetGo", version="0.1.0")
+
+
+
+app.add_middleware(RequestContextMiddleware)
+register_error_handlers(app)
+
+app.include_router(cars_router, prefix=settings.api_prefix)
+app.add_middleware(TimingMiddleware)
+app.add_middleware(RequestIDMiddleware)
 
 
 

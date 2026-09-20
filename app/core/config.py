@@ -28,7 +28,7 @@ class Settings(BaseSettings):
     webhook_secret: str
 
     # API
-    api_prefix: str = "/api"
+    api_prefix: str = "/api/v1"
 
     model_config = SettingsConfigDict(
         env_file=".env",
