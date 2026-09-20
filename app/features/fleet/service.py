@@ -1,4 +1,3 @@
-
 from sqlmodel import Session
 
 from app.features.fleet import repository
