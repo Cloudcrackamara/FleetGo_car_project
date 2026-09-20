@@ -17,6 +17,10 @@ services:
     env_file:
       - .env
     environment:
+      DATABASE_URL: postgresql+psycopg://fleetgo:fleetgo_password@postgres:5432/fleetgo
+      REDIS_URL: redis://redis:6379/0
+      JWT_SECRET: ${JWT_SECRET:-change-this-in-development}
+      WEBHOOK_SECRET: ${WEBHOOK_SECRET:-change-this-in-development}
       UV_PROJECT_ENVIRONMENT: /opt/venv
     depends_on:
       postgres:
@@ -35,7 +39,7 @@ services:
       POSTGRES_PASSWORD: fleetgo_password
       POSTGRES_DB: fleetgo
     ports:
-      - "5433:5432"
+      - "5435:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
