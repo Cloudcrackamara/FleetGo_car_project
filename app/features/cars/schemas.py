@@ -7,7 +7,6 @@ from sqlmodel import SQLModel
 from app.models.car import CarStatus
 
 
-
 class CarCreate(SQLModel):
     plate_no: str
     car_class: str
