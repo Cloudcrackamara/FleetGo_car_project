@@ -1,0 +1,31 @@
+from decimal import Decimal
+
+from fastapi import HTTPException, status
+from sqlmodel import Session
+
+from app.features.payments import repository
+from app.models.payment import Payment, PaymentKind
+from app.models.rental import Rental, RentalState
+
+
+def record_payment(
+    db: Session, *, rental_id: int, kind: PaymentKind, amount: Decimal, recorded_by: int
+) -> Payment:
+    rental = repository.get_rental(db, rental_id)
+    if rental is None:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, f"rental {rental_id} not found")
+
+  
+    if rental.state in (RentalState.CANCELLED, RentalState.RETURNED):
+        raise HTTPException(
+            status.HTTP_409_CONFLICT,
+            f"rental {rental_id} is {rental.state}; cannot record a payment",
+        )
+
+    payment = repository.create(
+        db,
+        Payment(rental_id=rental_id, kind=kind, amount=amount, recorded_by=recorded_by),
+    )
+    db.commit()
+    db.refresh(payment)
+    return payment

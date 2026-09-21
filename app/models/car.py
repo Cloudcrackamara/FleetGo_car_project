@@ -1,4 +1,4 @@
-# app/models/car.py
+
 from enum import Enum
 
 from sqlmodel import Field, SQLModel

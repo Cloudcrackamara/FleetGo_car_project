@@ -11,6 +11,10 @@ from app.features.cars.router import router as cars_router
 from app.features.fleet.router import router as fleet_router
 from app.middleware.request_id import RequestIDMiddleware
 from app.middleware.timing import TimingMiddleware
+from app.features.payments.router import router as payments_router
+from app.features.rentals.router import router as rentals_router
+
+
 
 app = FastAPI(title="FleetGo", version="0.1.0")
 
@@ -22,7 +26,8 @@ app.add_middleware(TimingMiddleware)
 app.add_middleware(RequestIDMiddleware)
 app.include_router(auth_router, prefix=settings.api_prefix)
 app.include_router(fleet_router, prefix=settings.api_prefix)
-
+app.include_router(payments_router, prefix=settings.api_prefix)
+app.include_router(rentals_router, prefix=settings.api_prefix)
 
 
 @app.get("/test-db")
