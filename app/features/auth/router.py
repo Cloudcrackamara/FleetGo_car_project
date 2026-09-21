@@ -3,7 +3,7 @@ from fastapi import APIRouter
 from app.core.dependencies import DbSession
 from app.features.auth import schemas, service
 
-router = APIRouter(tags=["auth"])
+router = APIRouter(tags=["Auth"])
 
 
 @router.post("/auth/register", response_model=schemas.UserRead)

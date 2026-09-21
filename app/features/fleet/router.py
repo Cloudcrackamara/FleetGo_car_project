@@ -4,7 +4,7 @@ from fastapi import APIRouter
 from app.core.dependencies import DbSession, require_role
 from app.features.fleet import schemas, service
 
-router = APIRouter(prefix="/fleet", tags=["reports"])
+router = APIRouter(prefix="/fleet", tags=["Reports"])
 
 
 @router.get(

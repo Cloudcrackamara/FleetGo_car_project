@@ -6,7 +6,7 @@ from app.features.rentals import schemas, service
 from app.features.rentals.state_machine import perform_move
 from app.models.rental import RentalState
 
-router = APIRouter(prefix="/rentals", tags=["rentals"])
+router = APIRouter(prefix="/rentals", tags=["Rentals"])
 
 
 @router.post("", response_model=schemas.RentalRead, status_code=status.HTTP_201_CREATED)

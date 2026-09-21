@@ -3,6 +3,13 @@ from enum import StrEnum
 from sqlmodel import Field, SQLModel
 
 
+class CarClass(StrEnum):
+    ECONOMY = "ECONOMY"
+    SUV = "SUV"
+    LUXURY = "LUXURY"
+    TRUCK = "TRUCK"
+
+
 class CarStatus(StrEnum):
     """The car's physical location, not its booking calendar.
     Availability for a date range is answered by querying rentals,

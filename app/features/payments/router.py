@@ -6,7 +6,7 @@ from app.features.payments import schemas, service
 """Nested under /rentals to match the brief's exact path:
 POST /api/v1/rentals/{id}/payments — agent only."""
 
-router = APIRouter(prefix="/rentals", tags=["payments"])
+router = APIRouter(prefix="/rentals", tags=["Payments"])
 
 
 @router.post(

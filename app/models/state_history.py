@@ -1,4 +1,4 @@
-# app/models/state_history.py
+
 from datetime import UTC, datetime
 
 from sqlmodel import Field, SQLModel

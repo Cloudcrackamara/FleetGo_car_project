@@ -1,4 +1,4 @@
-# app/features/auth/repository.py
+
 """Every database query for User, in one place. Nothing outside this
 file runs a query against the users table. Returns rows or None —
 never raises HTTP errors, never commits (that's the service's job).
@@ -19,5 +19,5 @@ def get_by_email(db: Session, email: str) -> User | None:
 
 def create(db: Session, user: User) -> User:
     db.add(user)
-    db.flush()  # assigns user.id without committing — service commits
+    db.flush()  
     return user

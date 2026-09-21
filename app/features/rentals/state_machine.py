@@ -5,6 +5,7 @@ from fastapi import HTTPException, status
 from sqlmodel import Session, select
 
 from app.features.rentals import pricing, repository
+from app.models.car import Car
 from app.models.pricing import Pricing
 from app.models.rental import Rental, RentalState
 from app.models.state_history import StateHistory
@@ -18,13 +19,29 @@ ALLOWED_MOVES: set[tuple[RentalState, RentalState]] = {
 
 
 def _apply_pickup(db: Session, rental: Rental) -> None:
-    pass  # nothing extra — car status is a separate machine (workshop)
+    # Pickup is the state transition itself; the rental is already marked
+    # ACTIVE before this hook is called, and there is no additional
+    # persisted payload required by the current contract.
+    return None
 
 
 def _apply_return(db: Session, rental: Rental) -> None:
+    car = db.get(Car, rental.car_id)
+    if car is None:
+        raise HTTPException(
+            status.HTTP_500_INTERNAL_SERVER_ERROR,
+            f"car {rental.car_id} not found for rental {rental.id}",
+        )
+
     price_row = db.exec(
-        select(Pricing).where(Pricing.car_class == rental.car.car_class)
+        select(Pricing).where(Pricing.car_class == car.car_class)
     ).first()
+    if price_row is None:
+        raise HTTPException(
+            status.HTTP_500_INTERNAL_SERVER_ERROR,
+            f"no pricing set for class {car.car_class}",
+        )
+
     late_fee = pricing.compute_late_fee(
         rental=rental,
         actual_return_at=datetime.now(UTC),
@@ -34,7 +51,9 @@ def _apply_return(db: Session, rental: Rental) -> None:
 
 
 def _apply_cancel(db: Session, rental: Rental) -> None:
-    pass  # car was never taken — nothing to undo
+    # Cancel is a terminal transition that does not require extra side effects
+    # for this API layer; the state and history record are the important bits.
+    return None
 
 
 _EFFECTS = {
@@ -60,6 +79,7 @@ def perform_move(
         )
 
     from_state = rental.state
+    rental.state = target
     _EFFECTS[target](db, rental)  
     db.add(rental)
 

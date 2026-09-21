@@ -5,7 +5,7 @@ a late fee only exists once we know the ACTUAL return time, which
 isn't known when the rental is first created."""
 
 import math
-from datetime import datetime
+from datetime import UTC, datetime
 from decimal import Decimal
 
 from app.models.rental import Rental
@@ -17,6 +17,10 @@ def compute_total(*, daily_rate: Decimal, start_at, end_at) -> Decimal:
     return daily_rate * days
 
 
+def _as_utc(value: datetime) -> datetime:
+    if value.tzinfo is None:
+        return value.replace(tzinfo=UTC)
+    return value.astimezone(UTC)
 
 
 def compute_late_fee(
@@ -26,9 +30,12 @@ def compute_late_fee(
     starts strictly after the deadline. Any part of a late day counts
     as a full day, consistent with compute_total's same-day-rental
     rule (days = max(days, 1))."""
-    if actual_return_at <= rental.end_at:
+    actual_return_at = _as_utc(actual_return_at)
+    end_at = _as_utc(rental.end_at)
+
+    if actual_return_at <= end_at:
         return Decimal("0")
 
-    late_duration = actual_return_at - rental.end_at
+    late_duration = actual_return_at - end_at
     late_days = math.ceil(late_duration.total_seconds() / (24 * 60 * 60))
     return Decimal(late_days) * late_fee_per_day

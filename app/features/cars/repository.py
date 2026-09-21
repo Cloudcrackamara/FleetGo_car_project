@@ -1,4 +1,3 @@
-# features/cars/repository.py
 """Every database query for Car, in one place. Nothing outside this
 file runs a query against the cars table. Returns rows or None —
 never raises HTTP errors, never commits (that's the service's job).

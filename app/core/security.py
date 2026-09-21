@@ -49,3 +49,16 @@ def decode_access_token(token: str) -> dict:
     return jwt.decode(
         token, settings.jwt_secret, algorithms=[settings.jwt_algorithm]
     )
+
+def verify_webhook_signature(raw_body: bytes, signature: str) -> bool:
+    """HMAC-SHA256 of the raw request body, using WEBHOOK_SECRET.
+    hmac.compare_digest is deliberate — a plain == comparison leaks
+    timing information an attacker could use to guess the signature
+    byte by byte."""
+    expected = hmac.new(
+        settings.webhook_secret.encode(), raw_body, hashlib.sha256
+    ).hexdigest()
+    try:
+        return hmac.compare_digest(expected, signature)
+    except (ValueError, TypeError):
+        return False

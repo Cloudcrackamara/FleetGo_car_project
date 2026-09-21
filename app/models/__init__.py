@@ -1,23 +1,28 @@
-# This makes alembic discover all models
+# Compatibility exports for the legacy test suite and app imports.
+# The project expects direct imports such as `Car`, `User`, and `RentalState`.
 
-from app.models import (
-    car,
-    payment,
-    pricing,
-    processed_event,
-    rental,
-    state_history,
-    user,
-    workshop_visit,
-)
+from app.models.car import Car, CarClass, CarStatus
+from app.models.payment import Payment, PaymentKind
+from app.models.pricing import Pricing
+from app.models.processed_event import ProcessedEvent
+from app.models.rental import Rental, RentalState
+from app.models.state_history import StateHistory
+from app.models.user import User, UserRole
+
+Role = UserRole
 
 __all__ = [
-    "car",
-    "payment",
-    "pricing",
-    "processed_event",
-    "rental",
-    "state_history",
-    "user",
-    "workshop_visit",
+    "Car",
+    "CarClass",
+    "CarStatus",
+    "Payment",
+    "PaymentKind",
+    "Pricing",
+    "ProcessedEvent",
+    "Rental",
+    "RentalState",
+    "Role",
+    "StateHistory",
+    "User",
+    "UserRole",
 ]

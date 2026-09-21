@@ -10,6 +10,7 @@ from app.features.auth.router import router as auth_router
 from app.features.cars.router import router as cars_router
 from app.features.fleet.router import router as fleet_router
 from app.features.payments.router import router as payments_router
+from app.features.payments.webhook_router import router as webhook_router
 from app.features.rentals.router import router as rentals_router
 from app.middleware.request_id import RequestIDMiddleware
 from app.middleware.timing import TimingMiddleware
@@ -24,6 +25,7 @@ app.include_router(auth_router, prefix=settings.api_prefix)
 app.include_router(fleet_router, prefix=settings.api_prefix)
 app.include_router(payments_router, prefix=settings.api_prefix)
 app.include_router(rentals_router, prefix=settings.api_prefix)
+app.include_router(webhook_router, prefix=settings.api_prefix)
 
 
 @app.get("/test-db")
