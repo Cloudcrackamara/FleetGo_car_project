@@ -1,17 +1,18 @@
 # app/models/rental.py
 from datetime import datetime
 from decimal import Decimal
-from enum import Enum
+from enum import StrEnum
 
 from sqlalchemy import Numeric
 from sqlmodel import Column, Field, Index, SQLModel
 
 
-class RentalState(str, Enum):
+class RentalState(StrEnum):
     """Exactly the machine on paper. POST /rentals creates the row
     already RESERVED — booking a car holds it immediately; the
     payment webhook records the deposit but does not move the state,
     since there's nothing before RESERVED to move from."""
+
     RESERVED = "reserved"
     ACTIVE = "active"
     RETURNED = "returned"

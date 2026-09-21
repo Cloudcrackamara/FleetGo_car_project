@@ -1,13 +1,13 @@
 # app/models/payment.py
 from datetime import UTC, datetime
 from decimal import Decimal
-from enum import Enum
+from enum import StrEnum
 
 from sqlalchemy import Numeric
 from sqlmodel import Column, Field, SQLModel
 
 
-class PaymentKind(str, Enum):
+class PaymentKind(StrEnum):
     DEPOSIT = "deposit"
     FINAL = "final"
 

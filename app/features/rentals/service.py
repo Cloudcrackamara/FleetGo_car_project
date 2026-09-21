@@ -2,15 +2,13 @@
 from datetime import datetime
 
 from fastapi import HTTPException, status
-from sqlmodel import Session
+from sqlmodel import Session, select
 
 from app.features.cars import repository as car_repo
-from app.features.cars.service import search_available_cars
-from app.features.rentals import pricing, repository
 from app.features.cars.repository import get as get_car
+from app.features.rentals import pricing, repository
 from app.models.pricing import Pricing
 from app.models.rental import Rental, RentalState
-from sqlmodel import select
 
 
 def create_rental(

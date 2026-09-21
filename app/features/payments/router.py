@@ -15,7 +15,12 @@ router = APIRouter(prefix="/rentals", tags=["payments"])
     status_code=status.HTTP_201_CREATED,
     dependencies=[require_role("agent")],
 )
-def record_payment(rental_id: int, payload: schemas.PaymentCreate, db: DbSession, user: CurrentUser):
+def record_payment(
+    rental_id: int,
+    payload: schemas.PaymentCreate,
+    db: DbSession,
+    user: CurrentUser,
+):
     return service.record_payment(
         db,
         rental_id=rental_id,

@@ -5,15 +5,15 @@ a late fee only exists once we know the ACTUAL return time, which
 isn't known when the rental is first created."""
 
 import math
-from decimal import Decimal
 from datetime import datetime
+from decimal import Decimal
 
 from app.models.rental import Rental
 
 
 def compute_total(*, daily_rate: Decimal, start_at, end_at) -> Decimal:
     days = (end_at - start_at).days
-    days = max(days, 1)  
+    days = max(days, 1)
     return daily_rate * days
 
 

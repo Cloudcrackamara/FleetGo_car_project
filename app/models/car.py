@@ -1,13 +1,13 @@
-
-from enum import Enum
+from enum import StrEnum
 
 from sqlmodel import Field, SQLModel
 
 
-class CarStatus(str, Enum):
+class CarStatus(StrEnum):
     """The car's physical location, not its booking calendar.
     Availability for a date range is answered by querying rentals,
     not by adding more values here."""
+
     AVAILABLE = "available"
     IN_WORKSHOP = "in_workshop"
 

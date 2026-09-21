@@ -5,7 +5,7 @@ from sqlmodel import Session
 
 from app.features.payments import repository
 from app.models.payment import Payment, PaymentKind
-from app.models.rental import Rental, RentalState
+from app.models.rental import RentalState
 
 
 def record_payment(

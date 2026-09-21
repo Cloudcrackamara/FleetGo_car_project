@@ -22,8 +22,10 @@ def get_current_user(credentials: Credentials, db: DbSession) -> User:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "missing bearer token")
     try:
         payload = decode_access_token(credentials.credentials)
-    except jwt.PyJWTError:
-        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "invalid or expired token")
+    except jwt.PyJWTError as exc:
+        raise HTTPException(
+            status.HTTP_401_UNAUTHORIZED, "invalid or expired token"
+        ) from exc
     user = db.get(User, int(payload["sub"]))
     if user is None:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "user no longer exists")

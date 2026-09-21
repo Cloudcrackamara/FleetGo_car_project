@@ -1,3 +1,5 @@
+"""Request/response models for recording a rental payment."""
+
 from datetime import datetime
 from decimal import Decimal
 
@@ -5,8 +7,6 @@ from sqlmodel import SQLModel
 
 from app.models.payment import PaymentKind
 
-
-"""Request/response models for recording a rental payment."""
 
 class PaymentCreate(SQLModel):
     kind: PaymentKind

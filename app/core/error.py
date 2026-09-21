@@ -14,7 +14,9 @@ def _body(code: str, message: str, request_id: str) -> dict:
 
 def register_error_handlers(app: FastAPI) -> None:
     @app.exception_handler(StarletteHTTPException)
-    async def _http_error(request: Request, exc: StarletteHTTPException) -> JSONResponse:
+    async def _http_error(
+        request: Request, exc: StarletteHTTPException
+    ) -> JSONResponse:
         request_id = getattr(request.state, "request_id", "-")
         return JSONResponse(
             status_code=exc.status_code,

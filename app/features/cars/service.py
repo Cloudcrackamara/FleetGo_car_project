@@ -58,16 +58,26 @@ def return_from_workshop(db: Session, car_id: int) -> Car:
 
 
 def get_pricing(db: Session, car_class: str) -> Pricing:
-    pricing = db.exec(select(Pricing).where(Pricing.car_class == car_class)).first()
+    pricing = db.exec(
+        select(Pricing).where(Pricing.car_class == car_class)
+    ).first()
     if pricing is None:
-        raise HTTPException(status.HTTP_404_NOT_FOUND, f"no pricing set for class {car_class}")
+        raise HTTPException(
+            status.HTTP_404_NOT_FOUND, f"no pricing set for class {car_class}"
+        )
     return pricing
 
 
 def set_pricing(db: Session, car_class: str, *, daily_rate, lateness_fee) -> Pricing:
-    pricing = db.exec(select(Pricing).where(Pricing.car_class == car_class)).first()
+    pricing = db.exec(
+        select(Pricing).where(Pricing.car_class == car_class)
+    ).first()
     if pricing is None:
-        pricing = Pricing(car_class=car_class, daily_rate=daily_rate, lateness_fee=lateness_fee)
+        pricing = Pricing(
+            car_class=car_class,
+            daily_rate=daily_rate,
+            lateness_fee=lateness_fee,
+        )
     else:
         pricing.daily_rate = daily_rate
         pricing.lateness_fee = lateness_fee

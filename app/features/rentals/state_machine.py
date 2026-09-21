@@ -2,14 +2,13 @@
 from datetime import UTC, datetime
 
 from fastapi import HTTPException, status
-from sqlmodel import Session
+from sqlmodel import Session, select
 
 from app.features.rentals import pricing, repository
 from app.models.pricing import Pricing
 from app.models.rental import Rental, RentalState
 from app.models.state_history import StateHistory
 from app.models.user import User
-from sqlmodel import select
 
 ALLOWED_MOVES: set[tuple[RentalState, RentalState]] = {
     (RentalState.RESERVED, RentalState.ACTIVE),
@@ -45,10 +44,14 @@ _EFFECTS = {
 }
 
 
-def perform_move(db: Session, rental_id: int, target: RentalState, actor: User) -> Rental:
+def perform_move(
+    db: Session, rental_id: int, target: RentalState, actor: User
+) -> Rental:
     rental = repository.get_for_update(db, rental_id)  # the row lock
     if rental is None:
-        raise HTTPException(status.HTTP_404_NOT_FOUND, f"rental {rental_id} not found")
+        raise HTTPException(
+            status.HTTP_404_NOT_FOUND, f"rental {rental_id} not found"
+        )
 
     if (rental.state, target) not in ALLOWED_MOVES:
         raise HTTPException(
