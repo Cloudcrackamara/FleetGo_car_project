@@ -10,6 +10,13 @@ from sqlmodel import Column, Field, SQLModel
 class PaymentKind(StrEnum):
     DEPOSIT = "deposit"
     FINAL = "final"
+    DAMAGE = "damage"
+
+
+class PaymentMethod(StrEnum):
+    CASH = "cash"
+    CARD = "card"
+    BANK_TRANSFER = "bank_transfer"
 
 
 class Payment(SQLModel, table=True):
@@ -18,6 +25,7 @@ class Payment(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
     rental_id: int = Field(foreign_key="rentals.id", index=True)
     kind: PaymentKind
+    method: PaymentMethod = Field(default=PaymentMethod.CASH)
     amount: Decimal = Field(sa_column=Column(Numeric(10, 2), nullable=False))
     recorded_by: int = Field(foreign_key="users.id")
     recorded_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
