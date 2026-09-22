@@ -1,6 +1,6 @@
-from fastapi import APIRouter,status
+from fastapi import APIRouter, status
 
-from app.core.dependencies import DbSession,require_role
+from app.core.dependencies import DbSession, require_role
 from app.features.auth import schemas, service
 
 router = APIRouter(tags=["Auth"])
