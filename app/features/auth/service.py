@@ -33,9 +33,13 @@ def login(db: Session, *, email: str, password: str) -> str:
 
 def create_staff(db: Session, *, email: str, password: str, role: UserRole) -> User:
     if role == UserRole.CUSTOMER:
-        raise HTTPException(status.HTTP_422_UNPROCESSABLE_ENTITY, "use /auth/register for customers")
+        raise HTTPException(
+            status.HTTP_422_UNPROCESSABLE_ENTITY, "use /auth/register for customers"
+        )
     if repository.get_by_email(db, email):
-        raise HTTPException(status.HTTP_409_CONFLICT, f"a user with email {email} already exists")
+        raise HTTPException(
+            status.HTTP_409_CONFLICT, f"a user with email {email} already exists"
+        )
     user = repository.create(
         db, User(email=email, password_hash=hash_password(password), role=role)
     )

@@ -13,7 +13,6 @@ from app.models.rental import Rental, RentalState
 from app.models.state_history import StateHistory
 from app.models.user import User
 
-
 ALLOWED_MOVES: set[tuple[RentalState, RentalState]] = {
     (RentalState.RESERVED, RentalState.ACTIVE),
     (RentalState.ACTIVE, RentalState.RETURNED),
