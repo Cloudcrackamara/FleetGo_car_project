@@ -7,6 +7,7 @@ from sqlmodel import Session, select
 from app.events.broadcaster import fleet_broadcaster
 from app.features.rentals import pricing, repository
 from app.models.car import Car
+from app.models.payment import Payment, PaymentKind, PaymentMethod
 from app.models.pricing import Pricing
 from app.models.rental import Rental, RentalState
 from app.models.state_history import StateHistory
@@ -24,6 +25,8 @@ def _apply_pickup(
     db: Session,
     rental: Rental,
     damage_charge: Decimal,
+    actor: User,
+    payment_method: PaymentMethod,
 ) -> None:
     # No additional side effects required for pickup.
     pass
@@ -33,6 +36,8 @@ def _apply_return(
     db: Session,
     rental: Rental,
     damage_charge: Decimal,
+    actor: User,
+    payment_method: PaymentMethod,
 ) -> None:
     car = db.get(Car, rental.car_id)
 
@@ -62,11 +67,24 @@ def _apply_return(
 
     rental.total += late_fee + damage_charge
 
+    if damage_charge > 0:
+        db.add(
+            Payment(
+                rental_id=rental.id,
+                kind=PaymentKind.DAMAGE,
+                method=payment_method,
+                amount=damage_charge,
+                recorded_by=actor.id,
+            )
+        )
+
 
 def _apply_cancel(
     db: Session,
     rental: Rental,
     damage_charge: Decimal,
+    actor: User,
+    payment_method: PaymentMethod,
 ) -> None:
     # Reservation was cancelled before completion.
     pass
@@ -85,6 +103,7 @@ def perform_move(
     target: RentalState,
     actor: User,
     damage_charge: Decimal = Decimal("0"),
+    payment_method: PaymentMethod = PaymentMethod.CASH,
 ) -> Rental:
     rental = repository.get_for_update(
         db,
@@ -110,6 +129,8 @@ def perform_move(
         db,
         rental,
         damage_charge,
+        actor,
+        payment_method,
     )
 
     db.add(rental)

@@ -25,6 +25,7 @@ def record_payment(
         db,
         rental_id=rental_id,
         kind=payload.kind,
+        method=payload.method,
         amount=payload.amount,
         recorded_by=user.id,
     )

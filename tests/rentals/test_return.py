@@ -6,6 +6,9 @@ from app.models import (
     Car,
     CarClass,
     CarStatus,
+    Payment,
+    PaymentKind,
+    PaymentMethod,
     Pricing,
     Rental,
     RentalState,
@@ -95,6 +98,29 @@ def test_return_changes_active_to_returned(client, db):
     assert response.status_code == 200
     assert response.json()["state"] == RentalState.RETURNED.value
     assert Decimal(response.json()["total"]) >= Decimal("0")
+
+
+def test_return_records_damage_payment(client, db):
+    agent = create_agent(db)
+    rental = create_active_rental(db)
+
+    login = client.post(
+        "/api/v1/auth/login",
+        json={"email": agent.email, "password": "password123"},
+    )
+
+    response = client.post(
+        f"/api/v1/rentals/{rental.id}/return",
+        headers={"Authorization": f"Bearer {login.json()['access_token']}"},
+        json={"damage_charge": "5000.00", "payment_method": "card"},
+    )
+
+    assert response.status_code == 200
+    payment = db.query(Payment).filter(Payment.rental_id == rental.id).one()
+    assert payment.kind == PaymentKind.DAMAGE
+    assert payment.method == PaymentMethod.CARD
+    assert payment.amount == Decimal("5000.00")
+    assert payment.recorded_by == agent.id
 
 
 def test_return_from_reserved_fails(client, db):

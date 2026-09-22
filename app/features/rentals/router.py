@@ -46,7 +46,12 @@ def return_rental(
     rental_id: int, payload: schemas.RentalReturn, db: DbSession, user: CurrentUser
 ):
     return perform_move(
-        db, rental_id, RentalState.RETURNED, actor=user, damage_charge=payload.damage_charge
+        db,
+        rental_id,
+        RentalState.RETURNED,
+        actor=user,
+        damage_charge=payload.damage_charge,
+        payment_method=payload.payment_method,
     )
 
 

@@ -2,8 +2,9 @@ from datetime import datetime
 from decimal import Decimal
 
 from pydantic import model_validator
-from sqlmodel import SQLModel
+from sqlmodel import Field, SQLModel
 
+from app.models.payment import PaymentMethod
 from app.models.rental import RentalState
 
 
@@ -40,12 +41,14 @@ class RentalRead(SQLModel):
 
 
 class RentalReturn(SQLModel):
-    damage_charge: Decimal = Decimal("0")
+    damage_charge: Decimal = Field(default=Decimal("0"), ge=0)
+    payment_method: PaymentMethod = PaymentMethod.CASH
 
     model_config = {
         "json_schema_extra": {
             "example": {
-                "damage_charge": "5000.00"
+                "damage_charge": "5000.00",
+                "payment_method": "card",
             }
         }
     }

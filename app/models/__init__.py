@@ -2,7 +2,7 @@
 # The project expects direct imports such as `Car`, `User`, and `RentalState`.
 
 from app.models.car import Car, CarClass, CarStatus
-from app.models.payment import Payment, PaymentKind
+from app.models.payment import Payment, PaymentKind, PaymentMethod
 from app.models.pricing import Pricing
 from app.models.processed_event import ProcessedEvent
 from app.models.rental import Rental, RentalState
@@ -17,6 +17,7 @@ __all__ = [
     "CarStatus",
     "Payment",
     "PaymentKind",
+    "PaymentMethod",
     "Pricing",
     "ProcessedEvent",
     "Rental",
