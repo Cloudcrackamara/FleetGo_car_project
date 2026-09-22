@@ -1,5 +1,5 @@
-
 from datetime import UTC, datetime
+from decimal import Decimal
 
 from fastapi import HTTPException, status
 from sqlmodel import Session, select
@@ -12,6 +12,7 @@ from app.models.rental import Rental, RentalState
 from app.models.state_history import StateHistory
 from app.models.user import User
 
+
 ALLOWED_MOVES: set[tuple[RentalState, RentalState]] = {
     (RentalState.RESERVED, RentalState.ACTIVE),
     (RentalState.ACTIVE, RentalState.RETURNED),
@@ -19,15 +20,22 @@ ALLOWED_MOVES: set[tuple[RentalState, RentalState]] = {
 }
 
 
-def _apply_pickup(db: Session, rental: Rental) -> None:
-    # Pickup is the state transition itself; the rental is already marked
-    # ACTIVE before this hook is called, and there is no additional
-    # persisted payload required by the current contract.
-    return None
+def _apply_pickup(
+    db: Session,
+    rental: Rental,
+    damage_charge: Decimal,
+) -> None:
+    # No additional side effects required for pickup.
+    pass
 
 
-def _apply_return(db: Session, rental: Rental) -> None:
+def _apply_return(
+    db: Session,
+    rental: Rental,
+    damage_charge: Decimal,
+) -> None:
     car = db.get(Car, rental.car_id)
+
     if car is None:
         raise HTTPException(
             status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -35,8 +43,11 @@ def _apply_return(db: Session, rental: Rental) -> None:
         )
 
     price_row = db.exec(
-        select(Pricing).where(Pricing.car_class == car.car_class)
+        select(Pricing).where(
+            Pricing.car_class == car.car_class
+        )
     ).first()
+
     if price_row is None:
         raise HTTPException(
             status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -48,13 +59,17 @@ def _apply_return(db: Session, rental: Rental) -> None:
         actual_return_at=datetime.now(UTC),
         late_fee_per_day=price_row.lateness_fee,
     )
-    rental.total += late_fee
+
+    rental.total += late_fee + damage_charge
 
 
-def _apply_cancel(db: Session, rental: Rental) -> None:
-    # Cancel is a terminal transition that does not require extra side effects
-    # for this API layer; the state and history record are the important bits.
-    return None
+def _apply_cancel(
+    db: Session,
+    rental: Rental,
+    damage_charge: Decimal,
+) -> None:
+    # Reservation was cancelled before completion.
+    pass
 
 
 _EFFECTS = {
@@ -65,12 +80,21 @@ _EFFECTS = {
 
 
 def perform_move(
-    db: Session, rental_id: int, target: RentalState, actor: User
+    db: Session,
+    rental_id: int,
+    target: RentalState,
+    actor: User,
+    damage_charge: Decimal = Decimal("0"),
 ) -> Rental:
-    rental = repository.get_for_update(db, rental_id)  # the row lock
+    rental = repository.get_for_update(
+        db,
+        rental_id,
+    )
+
     if rental is None:
         raise HTTPException(
-            status.HTTP_404_NOT_FOUND, f"rental {rental_id} not found"
+            status.HTTP_404_NOT_FOUND,
+            f"rental {rental_id} not found",
         )
 
     if (rental.state, target) not in ALLOWED_MOVES:
@@ -81,7 +105,13 @@ def perform_move(
 
     from_state = rental.state
     rental.state = target
-    _EFFECTS[target](db, rental)  
+
+    _EFFECTS[target](
+        db,
+        rental,
+        damage_charge,
+    )
+
     db.add(rental)
 
     db.add(
@@ -95,6 +125,7 @@ def perform_move(
 
     db.commit()
     db.refresh(rental)
+
     fleet_broadcaster.publish(
         "rental.state_changed",
         str(rental.id),
@@ -105,4 +136,5 @@ def perform_move(
             "to": target.value,
         },
     )
+
     return rental

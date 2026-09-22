@@ -42,8 +42,12 @@ def pickup(rental_id: int, db: DbSession, user: CurrentUser):
     "/{rental_id}/return", response_model=schemas.RentalRead,
     dependencies=[require_role("agent")],
 )
-def return_rental(rental_id: int, db: DbSession, user: CurrentUser):
-    return perform_move(db, rental_id, RentalState.RETURNED, actor=user)
+def return_rental(
+    rental_id: int, payload: schemas.RentalReturn, db: DbSession, user: CurrentUser
+):
+    return perform_move(
+        db, rental_id, RentalState.RETURNED, actor=user, damage_charge=payload.damage_charge
+    )
 
 
 @router.post("/{rental_id}/cancel", response_model=schemas.RentalRead)

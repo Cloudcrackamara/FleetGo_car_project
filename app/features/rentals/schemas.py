@@ -1,4 +1,3 @@
-
 from datetime import datetime
 from decimal import Decimal
 
@@ -38,3 +37,15 @@ class RentalRead(SQLModel):
     end_at: datetime
     state: RentalState
     total: Decimal
+
+
+class RentalReturn(SQLModel):
+    damage_charge: Decimal = Decimal("0")
+
+    model_config = {
+        "json_schema_extra": {
+            "example": {
+                "damage_charge": "5000.00"
+            }
+        }
+    }
