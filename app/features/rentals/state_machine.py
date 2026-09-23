@@ -12,6 +12,8 @@ from app.models.pricing import Pricing
 from app.models.rental import Rental, RentalState
 from app.models.state_history import StateHistory
 from app.models.user import User
+from app.core.redis_client import redis_client
+from app.features.fleet.service import FLEET_BOARD_CACHE_KEY
 
 ALLOWED_MOVES: set[tuple[RentalState, RentalState]] = {
     (RentalState.RESERVED, RentalState.ACTIVE),
@@ -145,6 +147,8 @@ def perform_move(
 
     db.commit()
     db.refresh(rental)
+    
+    redis_client.delete(FLEET_BOARD_CACHE_KEY)
 
     fleet_broadcaster.publish(
         "rental.state_changed",

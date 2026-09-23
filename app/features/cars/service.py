@@ -7,6 +7,8 @@ from sqlmodel import Session, select
 from app.features.cars import repository
 from app.models.car import Car, CarStatus
 from app.models.pricing import Pricing
+from app.core.redis_client import redis_client
+from app.features.fleet.service import FLEET_BOARD_CACHE_KEY
 
 
 def create_car(db: Session, *, plate_no: str, car_class: str) -> Car:
@@ -23,9 +25,6 @@ def create_car(db: Session, *, plate_no: str, car_class: str) -> Car:
 def search_available_cars(
     db: Session, *, car_class: str | None, start: datetime, end: datetime
 ) -> list[Car]:
-    # end <= start is now caught before this function is even called —
-    # see CarAvailabilityQuery's validator below. Bad input never
-    # reaches the service layer at all.
     return repository.list_available(db, car_class=car_class, start=start, end=end)
 
 
@@ -40,6 +39,7 @@ def send_to_workshop(db: Session, car_id: int) -> Car:
     car = repository.update_status(db, car, CarStatus.IN_WORKSHOP)
     db.commit()
     db.refresh(car)
+    redis_client.delete(FLEET_BOARD_CACHE_KEY)
     return car
 
 
@@ -54,6 +54,7 @@ def return_from_workshop(db: Session, car_id: int) -> Car:
     car = repository.update_status(db, car, CarStatus.AVAILABLE)
     db.commit()
     db.refresh(car)
+    redis_client.delete(FLEET_BOARD_CACHE_KEY)
     return car
 
 
