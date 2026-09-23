@@ -1,72 +1,64 @@
-# from datetime import UTC, datetime, timedelta
+import asyncio
+import json
 
-# from app.features.rentals.pricing import calculate_late_days
-# from app.features.rentals.state_machine import ALLOWED_TRANSITIONS
-# from app.models import RentalState
-
-
-# def test_allowed_reserved_to_active():
-#     assert (
-#         RentalState.RESERVED,
-#         RentalState.ACTIVE,
-#     ) in ALLOWED_TRANSITIONS
+from app.events.broadcaster import Broadcaster
+from app.integrations.email import send_email
+from app.integrations.events import publish_rental_state_changed
+from app.integrations.firestore import save_document
 
 
-# def test_allowed_active_to_returned():
-#     assert (
-#         RentalState.ACTIVE,
-#         RentalState.RETURNED,
-#     ) in ALLOWED_TRANSITIONS
+def test_save_document_returns_contract_payload():
+    result = save_document(
+        "audit_logs",
+        "rental-42",
+        {"rental_id": 42, "status": "changed"},
+    )
+
+    assert result["collection"] == "audit_logs"
+    assert result["document_id"] == "rental-42"
+    assert result["payload"]["rental_id"] == 42
+    assert result["status"] == "stubbed"
 
 
-# def test_allowed_reserved_to_cancelled():
-#     assert (
-#         RentalState.RESERVED,
-#         RentalState.CANCELLED,
-#     ) in ALLOWED_TRANSITIONS
+def test_send_email_returns_contract_payload():
+    result = send_email(
+        to_email="customer@example.com",
+        subject="Welcome",
+        body="Hello there",
+    )
+
+    assert result["to"] == "customer@example.com"
+    assert result["subject"] == "Welcome"
+    assert result["body"] == "Hello there"
+    assert result["provider"] == "smtp"
+    assert "status" in result
 
 
-# def test_disallowed_return_from_reserved():
-#     allowed = {
-#         (RentalState.RESERVED, RentalState.ACTIVE),
-#         (RentalState.ACTIVE, RentalState.RETURNED),
-#         (RentalState.RESERVED, RentalState.CANCELLED),
-#     }
+def test_publish_rental_state_changed_emits_expected_payload():
+    broadcaster = Broadcaster()
 
-#     assert (
-#         RentalState.RESERVED,
-#         RentalState.RETURNED,
-#     ) not in allowed
+    async def collect_event():
+        async for raw in broadcaster.subscribe():
+            payload = json.loads(raw.removeprefix("data: ").strip())
+            return payload
 
+    async def run_case():
+        consumer = asyncio.create_task(collect_event())
+        await asyncio.sleep(0)
+        publish_rental_state_changed(
+            rental_id=42,
+            car_id=7,
+            from_state="reserved",
+            to_state="active",
+            broadcaster=broadcaster,
+        )
+        return await asyncio.wait_for(consumer, timeout=1)
 
-# def test_late_two_days():
-#     end = datetime(
-#         2026,
-#         9,
-#         10,
-#         tzinfo=UTC,
-#     )
+    payload = asyncio.run(run_case())
 
-#     returned = end + timedelta(days=2)
-
-#     assert calculate_late_days(
-#         end,
-#         returned,
-#     ) == 2
-
-
-# def test_on_time_return_has_zero_late_days():
-
-#     end = datetime(
-#         2026,
-#         9,
-#         10,
-#         tzinfo=UTC,
-#     )
-
-#     returned = end
-
-#     assert calculate_late_days(
-#         end,
-#         returned,
-#     ) == 0
+    assert payload["type"] == "rental.state_changed"
+    assert payload["id"] == "42"
+    assert payload["data"]["rental_id"] == 42
+    assert payload["data"]["car_id"] == 7
+    assert payload["data"]["from"] == "reserved"
+    assert payload["data"]["to"] == "active"

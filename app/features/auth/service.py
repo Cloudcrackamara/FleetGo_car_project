@@ -4,6 +4,7 @@ from sqlmodel import Session
 
 from app.core.security import create_access_token, hash_password, verify_password
 from app.features.auth import repository
+from app.integrations.email import send_email
 from app.models.user import User, UserRole
 
 
@@ -19,6 +20,16 @@ def register(
     )
     db.commit()
     db.refresh(user)
+
+    send_email(
+        to_email=user.email,
+        subject="Welcome to FleetGo",
+        body=(
+            f"Hello {user.email},\n\n"
+            "Your FleetGo account has been created successfully."
+        ),
+    )
+
     return user
 
 

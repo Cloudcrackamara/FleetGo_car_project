@@ -28,6 +28,13 @@ class Settings(BaseSettings):
     # Payment webhook
     webhook_secret: str
 
+    # Email
+    smtp_host: str | None = None
+    smtp_port: int = 587
+    smtp_username: str | None = None
+    smtp_password: str | None = None
+    smtp_from_email: str | None = None
+
     # API
     api_prefix: str = "/api/v1"
 
