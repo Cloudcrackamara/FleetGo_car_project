@@ -1,4 +1,3 @@
-
 """The five hard-problem tests. Each sets up its own data — no
 shared fixtures holding rentals between tests.
 """
@@ -80,7 +79,7 @@ def test_every_allowed_move_succeeds_and_disallowed_returns_409(db, client):
     assert "active" in r.json()["error"]["message"].lower()
 
     # Allowed: ACTIVE -> RETURNED
-    r = client.post(f"/api/v1/rentals/{rental.id}/return", headers=headers)
+    r = client.post(f"/api/v1/rentals/{rental.id}/return", headers=headers, json={})
     assert r.status_code == 200
     assert r.json()["state"] == "returned"
 
@@ -110,6 +109,7 @@ def test_state_history_rows_equal_accepted_moves(db, client):
     client.post(
         f"/api/v1/rentals/{rental.id}/return",
         headers=headers,
+        json={},
     )  # accepted
 
     rows = db.exec(
@@ -191,8 +191,6 @@ def test_two_simultaneous_pickups_produce_exactly_one_active():
 
     def attempt_pickup():
         with Session(TEST_ENGINE) as thread_db:
-            # rebuild a lightweight actor object with just what
-            # perform_move needs
             class Actor:
                 id = agent_id
             try:

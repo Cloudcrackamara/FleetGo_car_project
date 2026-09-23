@@ -1,34 +1,26 @@
-"""Password hashing (stdlib PBKDF2) and JWT helpers."""
+"""Password hashing (bcrypt) and JWT helpers."""
 
 from __future__ import annotations
 
-import hashlib
-import hmac
-import os
 from datetime import UTC, datetime, timedelta
 
+import bcrypt
 import jwt
+import hashlib
+import hmac as hmac_module
+
 
 from app.core.config import settings
 
-_ITERATIONS = 200_000
-
 
 def hash_password(password: str) -> str:
-    salt = os.urandom(16)
-    dk = hashlib.pbkdf2_hmac("sha256", password.encode(), salt, _ITERATIONS)
-    return f"pbkdf2_sha256${_ITERATIONS}${salt.hex()}${dk.hex()}"
+    return bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
 
 
 def verify_password(plain: str, hashed: str) -> bool:
     try:
-        algo, iters, salt_hex, hash_hex = hashed.split("$")
-        assert algo == "pbkdf2_sha256"
-        dk = hashlib.pbkdf2_hmac(
-            "sha256", plain.encode(), bytes.fromhex(salt_hex), int(iters)
-        )
-        return hmac.compare_digest(dk.hex(), hash_hex)
-    except (AssertionError, ValueError, TypeError, AttributeError, IndexError):
+        return bcrypt.checkpw(plain.encode(), hashed.encode())
+    except (ValueError, TypeError):
         return False
 
 
@@ -46,19 +38,15 @@ def create_access_token(
 
 
 def decode_access_token(token: str) -> dict:
-    return jwt.decode(
-        token, settings.jwt_secret, algorithms=[settings.jwt_algorithm]
-    )
+    return jwt.decode(token, settings.jwt_secret, algorithms=[settings.jwt_algorithm])
+
 
 def verify_webhook_signature(raw_body: bytes, signature: str) -> bool:
-    """HMAC-SHA256 of the raw request body, using WEBHOOK_SECRET.
-    hmac.compare_digest is deliberate — a plain == comparison leaks
-    timing information an attacker could use to guess the signature
-    byte by byte."""
-    expected = hmac.new(
+    
+    expected = hmac_module.new(
         settings.webhook_secret.encode(), raw_body, hashlib.sha256
     ).hexdigest()
     try:
-        return hmac.compare_digest(expected, signature)
+        return hmac_module.compare_digest(expected, signature)
     except (ValueError, TypeError):
         return False
