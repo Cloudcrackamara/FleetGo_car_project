@@ -18,11 +18,6 @@ def get_fleet_board(db: DbSession):
     return service.get_board(db)
 
 
-# GET /fleet/stream (SSE) is NOT built yet — deliberately. It needs to
-# push real state changes, and nothing publishes those until
-# lifecycle.py (Rentals) exists and calls a broadcaster on every
-# accepted move. Building this now would be an endpoint with nothing
-# to say. Comes back once Rentals is done.
 
 @router.get("/stream", dependencies=[require_role("manager")])
 async def fleet_stream():
