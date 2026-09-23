@@ -4,8 +4,9 @@ from decimal import Decimal
 from fastapi import HTTPException, status
 from sqlmodel import Session, select
 
-from app.events.broadcaster import fleet_broadcaster
 from app.features.rentals import pricing, repository
+from app.integrations.events import publish_rental_state_changed
+from app.integrations.firestore import log_rental_state_change
 from app.models.car import Car
 from app.models.payment import Payment, PaymentKind, PaymentMethod
 from app.models.pricing import Pricing
@@ -147,18 +148,20 @@ def perform_move(
 
     db.commit()
     db.refresh(rental)
-    
+
     redis_client.delete(FLEET_BOARD_CACHE_KEY)
 
-    fleet_broadcaster.publish(
-        "rental.state_changed",
-        str(rental.id),
-        {
-            "rental_id": rental.id,
-            "car_id": rental.car_id,
-            "from": from_state.value,
-            "to": target.value,
-        },
+    publish_rental_state_changed(
+        rental_id=rental.id,
+        car_id=rental.car_id,
+        from_state=from_state.value,
+        to_state=target.value,
+    )
+    log_rental_state_change(
+        rental_id=rental.id,
+        car_id=rental.car_id,
+        from_state=from_state.value,
+        to_state=target.value,
     )
 
     return rental
