@@ -4,8 +4,10 @@ from fastapi import HTTPException, status
 from sqlmodel import Session
 
 from app.features.payments import repository
+from app.integrations.notifications import send_customer_email
 from app.models.payment import Payment, PaymentKind, PaymentMethod
 from app.models.rental import RentalState
+from app.models.user import User
 
 
 def record_payment(
@@ -20,7 +22,8 @@ def record_payment(
     rental = repository.get_rental(db, rental_id)
     if rental is None:
         raise HTTPException(
-            status.HTTP_404_NOT_FOUND, f"rental {rental_id} not found"
+            status.HTTP_404_NOT_FOUND,
+            f"rental {rental_id} not found",
         )
 
     if rental.state in (RentalState.CANCELLED, RentalState.RETURNED):
@@ -41,4 +44,15 @@ def record_payment(
     )
     db.commit()
     db.refresh(payment)
+
+    customer = db.get(User, rental.customer_id)
+    if customer:
+        send_customer_email(
+            customer.email,
+            "payment_received",
+            payment_kind=kind.value,
+            amount=amount,
+            rental_id=rental_id,
+        )
+
     return payment
