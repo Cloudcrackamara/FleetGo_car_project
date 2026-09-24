@@ -34,6 +34,39 @@ def test_send_email_returns_contract_payload():
     assert "status" in result
 
 
+def test_send_email_allows_blank_credentials_for_local_smtp(monkeypatch):
+    class FakeSMTP:
+        def __init__(self, host, port):
+            self.host = host
+            self.port = port
+            self.sent = None
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, exc_type, exc, tb):
+            return False
+
+        def send_message(self, message):
+            self.sent = message
+
+    monkeypatch.setattr("app.integrations.email.settings.smtp_host", "localhost")
+    monkeypatch.setattr("app.integrations.email.settings.smtp_port", 1025)
+    monkeypatch.setattr("app.integrations.email.settings.smtp_username", "")
+    monkeypatch.setattr("app.integrations.email.settings.smtp_password", "")
+    monkeypatch.setattr("app.integrations.email.settings.smtp_from_email", "no-reply@fleetgo.local")
+    monkeypatch.setattr("app.integrations.email.smtplib.SMTP", FakeSMTP)
+
+    result = send_email(
+        to_email="customer@example.com",
+        subject="Welcome",
+        body="Hello there",
+    )
+
+    assert result["status"] == "sent"
+    assert result["to"] == "customer@example.com"
+
+
 def test_publish_rental_state_changed_emits_expected_payload():
     broadcaster = Broadcaster()
 

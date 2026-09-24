@@ -1,22 +1,36 @@
-# import pytest
+from sqlmodel import select
+
+from app.features.cars.service import create_car
+from app.features.workshop.service import (
+    return_from_workshop,
+    send_to_workshop,
+)
+from app.models.car import CarStatus
+from app.models.workshop_visit import WorkshopVisit
 
 
-# @pytest.mark.asyncio
-# async def test_workshop_requires_authentication(client):
-#     response = await client.post(
-#         "/api/v1/cars/00000000-0000-0000-0000-000000000000/workshop",
-#         json={
-#             "note": "Engine problem",
-#         },
-#     )
+def test_send_to_workshop_creates_visit(db):
+    car = create_car(db, plate_no="ABC-123-WK", car_class="SUV")
 
-#     assert response.status_code == 401
+    updated = send_to_workshop(db, car.id)
+
+    assert updated.status == CarStatus.IN_WORKSHOP
+    visit = db.exec(
+        select(WorkshopVisit).where(WorkshopVisit.car_id == car.id)
+    ).first()
+    assert visit is not None
+    assert visit.closed_at is None
 
 
-# @pytest.mark.asyncio
-# async def test_back_in_service_requires_authentication(client):
-#     response = await client.post(
-#         "/api/v1/cars/00000000-0000-0000-0000-000000000000/back-in-service",
-#     )
+def test_return_from_workshop_closes_last_open_visit(db):
+    car = create_car(db, plate_no="XYZ-987-WK", car_class="ECONOMY")
+    send_to_workshop(db, car.id)
 
-#     assert response.status_code == 401
+    updated = return_from_workshop(db, car.id)
+
+    assert updated.status == CarStatus.AVAILABLE
+    visit = db.exec(
+        select(WorkshopVisit).where(WorkshopVisit.car_id == car.id)
+    ).first()
+    assert visit is not None
+    assert visit.closed_at is not None
