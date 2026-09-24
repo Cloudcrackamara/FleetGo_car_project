@@ -21,4 +21,4 @@ def close(db: Session, visit: WorkshopVisit, *, closed_at=None) -> WorkshopVisit
     visit.closed_at = closed_at
     db.add(visit)
     db.flush()
-    return visit
+    return visit 
