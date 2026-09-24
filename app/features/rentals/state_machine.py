@@ -6,7 +6,7 @@ from sqlmodel import Session, select
 
 from app.features.rentals import pricing, repository
 from app.integrations.events import publish_rental_state_changed
-from app.integrations.firestore import log_rental_state_change
+from app.integrations.firestore import append_dispatch_event, update_fleet_board
 from app.models.car import Car
 from app.models.payment import Payment, PaymentKind, PaymentMethod
 from app.models.pricing import Pricing
@@ -151,17 +151,29 @@ def perform_move(
 
     redis_client.delete(FLEET_BOARD_CACHE_KEY)
 
+    car = db.get(Car, rental.car_id)
+    current_rental_id = rental.id if target == RentalState.ACTIVE else None
+
+    update_fleet_board(
+        car_id=rental.car_id,
+        status=car.status.value if car else "unknown",
+        current_rental_id=current_rental_id,
+    )
+
     publish_rental_state_changed(
         rental_id=rental.id,
         car_id=rental.car_id,
         from_state=from_state.value,
         to_state=target.value,
     )
-    log_rental_state_change(
-        rental_id=rental.id,
-        car_id=rental.car_id,
-        from_state=from_state.value,
-        to_state=target.value,
+    append_dispatch_event(
+        "rental.state_changed",
+        rental.car_id,
+        {
+            "rental_id": rental.id,
+            "from": from_state.value,
+            "to": target.value,
+        },
     )
 
     return rental

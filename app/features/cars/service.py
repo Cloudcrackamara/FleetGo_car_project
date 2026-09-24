@@ -9,6 +9,7 @@ from app.models.car import Car, CarStatus
 from app.models.pricing import Pricing
 from app.core.redis_client import redis_client
 from app.features.fleet.service import FLEET_BOARD_CACHE_KEY
+from app.integrations.firestore import append_dispatch_event, update_fleet_board
 
 
 def create_car(db: Session, *, plate_no: str, car_class: str) -> Car:
@@ -40,6 +41,11 @@ def send_to_workshop(db: Session, car_id: int) -> Car:
     db.commit()
     db.refresh(car)
     redis_client.delete(FLEET_BOARD_CACHE_KEY)
+    
+    update_fleet_board(car_id=car.id, status=car.status.value, current_rental_id=None)
+    append_dispatch_event(
+        "car.workshop_status_changed", car.id, {"status": car.status.value}
+    )
     return car
 
 
@@ -55,6 +61,12 @@ def return_from_workshop(db: Session, car_id: int) -> Car:
     db.commit()
     db.refresh(car)
     redis_client.delete(FLEET_BOARD_CACHE_KEY)
+    
+    
+    update_fleet_board(car_id=car.id, status=car.status.value, current_rental_id=None)
+    append_dispatch_event(
+        "car.workshop_status_changed", car.id, {"status": car.status.value}
+    )
     return car
 
 

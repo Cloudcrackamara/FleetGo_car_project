@@ -34,6 +34,9 @@ class Settings(BaseSettings):
     smtp_username: str | None = None
     smtp_password: str | None = None
     smtp_from_email: str | None = None
+    
+    # Firestore
+    firestore_credentials_path: str
 
     # API
     api_prefix: str = "/api/v1"

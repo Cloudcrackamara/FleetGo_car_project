@@ -15,6 +15,7 @@ from app.features.rentals.router import router as rentals_router
 from app.middleware.request_id import RequestIDMiddleware
 from app.middleware.timing import TimingMiddleware
 
+
 app = FastAPI(title="FleetGo", version="0.1.0")
 
 register_error_handlers(app)
