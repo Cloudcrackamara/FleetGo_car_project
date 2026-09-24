@@ -64,13 +64,15 @@ def send_email(
             smtp.send_message(message)
         payload["status"] = "sent"
         return payload
-    except Exception as exc:  # pragma: no cover - real network path is environment-specific
+    except Exception as exc:  # pragma: no cover
         payload["status"] = "failed"
         payload["detail"] = str(exc)
         return payload
 
 
-def send_rental_confirmation_email(*, to_email: str, customer_name: str, rental_id: int) -> dict[str, Any]:
+def send_rental_confirmation_email(
+    *, to_email: str, customer_name: str, rental_id: int
+) -> dict[str, Any]:
     """Convenience wrapper for a common integration event.
 
     Domain code can call this without knowing about SMTP details or provider
