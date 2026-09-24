@@ -21,11 +21,18 @@ services:
       REDIS_URL: redis://redis:6379/0
       JWT_SECRET: ${JWT_SECRET:-change-this-in-development}
       WEBHOOK_SECRET: ${WEBHOOK_SECRET:-change-this-in-development}
+      SMTP_HOST: ${SMTP_HOST:-mailhog}
+      SMTP_PORT: ${SMTP_PORT:-1025}
+      SMTP_USERNAME: ${SMTP_USERNAME:-}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+      SMTP_FROM_EMAIL: ${SMTP_FROM_EMAIL:-no-reply@fleetgo.local}
       UV_PROJECT_ENVIRONMENT: /opt/venv
     depends_on:
       postgres:
         condition: service_healthy
       redis:
+        condition: service_started
+      mailhog:
         condition: service_started
     command: ["uv", "run", "fastapi", "dev", "app/main.py", "--host", "0.0.0.0", "--port", "8000"]
     stdin_open: true
@@ -58,6 +65,13 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
+
+  mailhog:
+    image: mailhog/mailhog:v1.0.1
+    container_name: fleetgo-mailhog
+    ports:
+      - "1025:1025"
+      - "8025:8025"
 
 volumes:
   postgres_data:

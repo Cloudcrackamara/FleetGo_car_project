@@ -40,7 +40,7 @@ def send_email(
     smtp_password = settings.smtp_password
     smtp_from_email = sender or settings.smtp_from_email
 
-    if not smtp_host or not smtp_username or not smtp_password or not smtp_from_email:
+    if not smtp_host or not smtp_from_email:
         payload["status"] = "stubbed"
         payload["detail"] = "SMTP is not configured; email was not sent."
         return payload
@@ -55,8 +55,12 @@ def send_email(
 
     try:
         with smtplib.SMTP(smtp_host, settings.smtp_port) as smtp:
-            smtp.starttls()
-            smtp.login(smtp_username, smtp_password)
+            if smtp_username and smtp_password:
+                try:
+                    smtp.starttls()
+                except smtplib.SMTPNotSupportedError:
+                    pass
+                smtp.login(smtp_username, smtp_password)
             smtp.send_message(message)
         payload["status"] = "sent"
         return payload

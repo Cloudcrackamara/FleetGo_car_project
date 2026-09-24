@@ -8,6 +8,7 @@ from app.models.processed_event import ProcessedEvent
 from app.models.rental import Rental, RentalState
 from app.models.state_history import StateHistory
 from app.models.user import User, UserRole
+from app.models.workshop_visit import WorkshopVisit
 
 Role = UserRole
 
@@ -26,4 +27,5 @@ __all__ = [
     "StateHistory",
     "User",
     "UserRole",
+    "WorkshopVisit",
 ]
