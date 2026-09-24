@@ -52,3 +52,11 @@ class RentalReturn(SQLModel):
             }
         }
     }
+class RentalPickup(SQLModel):
+    mileage: int | None = Field(default=None, ge=0)
+
+    model_config = {
+        "json_schema_extra": {
+            "example": {"mileage": 45210}
+        }
+    }

@@ -15,6 +15,7 @@ from app.models.state_history import StateHistory
 from app.models.user import User
 from app.core.redis_client import redis_client
 from app.features.fleet.service import FLEET_BOARD_CACHE_KEY
+from app.features.cars import repository as car_repository
 
 ALLOWED_MOVES: set[tuple[RentalState, RentalState]] = {
     (RentalState.RESERVED, RentalState.ACTIVE),
@@ -22,17 +23,22 @@ ALLOWED_MOVES: set[tuple[RentalState, RentalState]] = {
     (RentalState.RESERVED, RentalState.CANCELLED),
 }
 
-
 def _apply_pickup(
     db: Session,
     rental: Rental,
     damage_charge: Decimal,
     actor: User,
     payment_method: PaymentMethod,
+    mileage: int | None = None,
 ) -> None:
-    # No additional side effects required for pickup.
-    pass
-
+    if mileage is not None:
+        car = db.get(Car, rental.car_id)
+        if car is None:
+            raise HTTPException(
+                status.HTTP_500_INTERNAL_SERVER_ERROR,
+                f"car {rental.car_id} not found for rental {rental.id}",
+            )
+        car_repository.update_mileage(db, car, mileage)
 
 def _apply_return(
     db: Session,
@@ -40,6 +46,7 @@ def _apply_return(
     damage_charge: Decimal,
     actor: User,
     payment_method: PaymentMethod,
+    mileage: int | None = None,
 ) -> None:
     car = db.get(Car, rental.car_id)
 
@@ -87,6 +94,7 @@ def _apply_cancel(
     damage_charge: Decimal,
     actor: User,
     payment_method: PaymentMethod,
+    mileage: int | None = None,
 ) -> None:
     # Reservation was cancelled before completion.
     pass
@@ -106,6 +114,7 @@ def perform_move(
     actor: User,
     damage_charge: Decimal = Decimal("0"),
     payment_method: PaymentMethod = PaymentMethod.CASH,
+    mileage: int | None = None,
 ) -> Rental:
     rental = repository.get_for_update(
         db,
@@ -133,6 +142,7 @@ def perform_move(
         damage_charge,
         actor,
         payment_method,
+        mileage
     )
 
     db.add(rental)

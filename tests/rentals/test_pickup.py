@@ -85,6 +85,9 @@ def test_pickup_changes_reserved_to_active(client, db):
 
     assert response.status_code == 200
     assert response.json()["state"] == RentalState.ACTIVE.value
+    car = db.get(Car, rental.car_id)
+    assert car is not None
+    assert car.mileage == 10000
 
 
 def test_pickup_from_returned_rental_fails(client, db):

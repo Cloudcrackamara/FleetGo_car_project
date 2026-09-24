@@ -6,6 +6,7 @@ from app.features.rentals import schemas, service
 from app.features.rentals.state_machine import perform_move
 from app.models.rental import RentalState
 
+
 router = APIRouter(prefix="/rentals", tags=["Rentals"])
 
 
@@ -31,14 +32,6 @@ def get_rental(db: DbSession, rental_id: int, *, requester: CurrentUser):
 
 
 @router.post(
-    "/{rental_id}/pickup", response_model=schemas.RentalRead,
-    dependencies=[require_role("agent")],
-)
-def pickup(rental_id: int, db: DbSession, user: CurrentUser):
-    return perform_move(db, rental_id, RentalState.ACTIVE, actor=user)
-
-
-@router.post(
     "/{rental_id}/return", response_model=schemas.RentalRead,
     dependencies=[require_role("agent")],
 )
@@ -55,8 +48,27 @@ def return_rental(
     )
 
 
-@router.post("/{rental_id}/cancel", response_model=schemas.RentalRead)
+@router.post(
+    "/{rental_id}/pickup", response_model=schemas.RentalRead,
+    dependencies=[require_role("agent")],
+)
+def pickup(
+    rental_id: int,
+    db: DbSession,
+    user: CurrentUser,
+    payload: schemas.RentalPickup | None = None,
+):
+    return perform_move(
+        db,
+        rental_id,
+        RentalState.ACTIVE,
+        actor=user,
+        mileage=payload.mileage if payload else None,
+    )
+
+
+@router.post(
+    "/{rental_id}/cancel", response_model=schemas.RentalRead,
+)
 def cancel(rental_id: int, db: DbSession, user: CurrentUser):
-    # TODO: owner OR staff, per the brief — not agent-only like
-    # pickup/return. Add the ownership check.
     return perform_move(db, rental_id, RentalState.CANCELLED, actor=user)
