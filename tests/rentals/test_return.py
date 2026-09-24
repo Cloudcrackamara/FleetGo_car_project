@@ -1,5 +1,6 @@
 from datetime import UTC, datetime, timedelta
 from decimal import Decimal
+from uuid import uuid4
 
 from app.core.security import hash_password
 from app.models import (
@@ -19,7 +20,7 @@ from app.models import (
 
 def create_agent(db):
     agent = User(
-        email="agent@test.com",
+        email=f"agent-{uuid4()}@test.com",
         password_hash=hash_password("password123"),
         role=Role.AGENT,
     )

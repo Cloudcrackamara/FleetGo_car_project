@@ -40,6 +40,13 @@ def create_rental(db, *, state=RentalState.RESERVED):
 
 def test_record_payment_persists_payment_and_notifies_customer(db, monkeypatch):
 	rental = create_rental(db)
+	recorder = User(
+		email="payment-recorder@example.com",
+		password_hash="not-used-in-this-test",
+	)
+	db.add(recorder)
+	db.commit()
+	db.refresh(recorder)
 	captured = {}
 
 	def fake_send_customer_email(*args, **kwargs):
@@ -57,7 +64,7 @@ def test_record_payment_persists_payment_and_notifies_customer(db, monkeypatch):
 		kind=PaymentKind.DEPOSIT,
 		method=PaymentMethod.CARD,
 		amount=Decimal("25000.00"),
-		recorded_by=42,
+		recorded_by=recorder.id,
 	)
 
 	stored = db.get(Payment, payment.id)
@@ -66,7 +73,7 @@ def test_record_payment_persists_payment_and_notifies_customer(db, monkeypatch):
 	assert stored.kind == PaymentKind.DEPOSIT
 	assert stored.method == PaymentMethod.CARD
 	assert stored.amount == Decimal("25000.00")
-	assert stored.recorded_by == 42
+	assert stored.recorded_by == recorder.id
 	assert captured["args"] == ("payment-reserved@example.com", "payment_received")
 	assert captured["kwargs"]["rental_id"] == rental.id
 

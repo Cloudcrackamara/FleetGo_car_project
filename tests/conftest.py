@@ -9,11 +9,13 @@ from collections.abc import Iterator
 
 import pytest
 from fastapi.testclient import TestClient
-from sqlalchemy import text
+from sqlalchemy import event, text
 from sqlmodel import Session, SQLModel, create_engine
 
 from app.core.config import settings
+from app.core.redis_client import redis_client
 from app.db.session import get_session
+from app.integrations import firestore
 from app.main import app
 
 
@@ -49,12 +51,29 @@ def db(engine) -> Iterator[Session]:
     connection = engine.connect()
     transaction = connection.begin()
     session = Session(bind=connection)
+    session.begin_nested()
+
+    @event.listens_for(session, "after_transaction_end")
+    def restart_savepoint(session, ended_transaction):
+        if ended_transaction.nested and not ended_transaction._parent.nested:
+            session.begin_nested()
+
     try:
         yield session
     finally:
+        event.remove(session, "after_transaction_end", restart_savepoint)
         session.close()
         transaction.rollback()
         connection.close()
+
+
+@pytest.fixture(autouse=True)
+def disable_external_firestore(monkeypatch):
+    monkeypatch.setattr(settings, "firestore_credentials_path", "")
+    monkeypatch.setattr(firestore, "_client", None)
+    keys = list(redis_client.scan_iter(match="ratelimit:*") )
+    if keys:
+        redis_client.delete(*keys)
 
 
 @pytest.fixture

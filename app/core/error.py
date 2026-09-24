@@ -9,7 +9,10 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 
 
 def _body(code: str, message: str, request_id: str) -> dict:
-    return {"error": {"code": code, "message": message, "request_id": request_id}}
+    return {
+        "detail": message,
+        "error": {"code": code, "message": message, "request_id": request_id},
+    }
 
 
 def register_error_handlers(app: FastAPI) -> None:

@@ -20,7 +20,10 @@ async def payment_webhook(
     raw_body = await request.body()  # MUST read raw bytes before parsing
 
     if not verify_webhook_signature(raw_body, x_signature):
-        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "invalid signature")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="invalid signature",
+        )
 
     payload = WebhookPayload.model_validate_json(raw_body)
 
