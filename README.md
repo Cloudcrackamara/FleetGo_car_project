@@ -1,9 +1,9 @@
-````markdown
 # FleetGo
 
 FleetGo is a FastAPI backend for car rental and fleet management. It handles customer registration and authentication, vehicle availability, rental reservations, rental state transitions, payments, workshop status, fleet reporting, signed payment webhooks, Redis caching and rate limiting, Server-Sent Events, Firestore integration, and SMTP notifications.
 
 ## Overview
+![alt text](image-1.png)
 
 FleetGo models the rental lifecycle around a small, explicit state machine:
 
@@ -11,7 +11,7 @@ FleetGo models the rental lifecycle around a small, explicit state machine:
 RESERVED ──────► ACTIVE ──────► RETURNED
     │
     └───────────► CANCELLED
-````
+```
 
 A rental is created directly in the `RESERVED` state. Pickup moves it to `ACTIVE`, return moves it to `RETURNED`, and a reservation can be cancelled before pickup.
 
@@ -28,58 +28,55 @@ Availability for a requested date range is determined from the car's workshop st
 PostgreSQL is the primary data store. Redis is used for fleet-board caching and authentication rate limiting. Firestore provides a secondary fleet-board and dispatch-event feed when configured. SMTP is used for customer notifications and MailHog is provided for local email testing.
 
 ---
-![alt text](image-1.png)
+
 ## Features
 
-* Customer registration
-* JWT-based authentication
-* Bcrypt password hashing
-* Three user roles:
-
-  * `customer`
-  * `agent`
-  * `manager`
-* Role-based route protection
-* Manager-only staff account creation
-* Manager bootstrap seed script
-* Car creation
-* Car availability search by class and date range
-* Rental creation and reservation
-* Rental state machine
-* PostgreSQL row locking for concurrent pickup protection
-* Append-only rental state history records
-* Server-side rental pricing
-* Late-fee calculation at return
-* Damage-charge handling at return
-* Agent-recorded rental payments
-* Payment methods:
-
-  * cash
-  * card
-  * bank transfer
-* Payment kinds:
-
-  * deposit
-  * final
-  * damage
-* Workshop status management
-* Workshop visit records
-* Redis fleet-board caching
-* Redis-backed login and registration rate limiting
-* Signed payment webhooks
-* HMAC-SHA256 webhook verification
-* Duplicate webhook protection using `processed_events`
-* Orphan payment-event handling
-* Server-Sent Events fleet stream
-* In-process SSE broadcaster with a 15-second heartbeat
-* Firestore fleet-board and dispatch-feed integration
-* Graceful Firestore stubbing when credentials are unavailable
-* SMTP customer notifications
-* Graceful SMTP stubbing when SMTP is not configured
-* Centralized HTTP and validation error responses
-* Request ID middleware
-* Response timing middleware
-* API versioning under `/api/v1`
+- Customer registration
+- JWT-based authentication
+- Bcrypt password hashing
+- Three user roles:
+  - `customer`
+  - `agent`
+  - `manager`
+- Role-based route protection
+- Manager-only staff account creation
+- Manager bootstrap seed script
+- Car creation
+- Car availability search by class and date range
+- Rental creation and reservation
+- Rental state machine
+- PostgreSQL row locking for concurrent pickup protection
+- Append-only rental state history records
+- Server-side rental pricing
+- Late-fee calculation at return
+- Damage-charge handling at return
+- Agent-recorded rental payments
+- Payment methods:
+  - cash
+  - card
+  - bank transfer
+- Payment kinds:
+  - deposit
+  - final
+  - damage
+- Workshop status management
+- Workshop visit records
+- Redis fleet-board caching
+- Redis-backed login and registration rate limiting
+- Signed payment webhooks
+- HMAC-SHA256 webhook verification
+- Duplicate webhook protection using `processed_events`
+- Orphan payment-event handling
+- Server-Sent Events fleet stream
+- In-process SSE broadcaster with a 15-second heartbeat
+- Firestore fleet-board and dispatch-feed integration
+- Graceful Firestore stubbing when credentials are unavailable
+- SMTP customer notifications
+- Graceful SMTP stubbing when SMTP is not configured
+- Centralized HTTP and validation error responses
+- Request ID middleware
+- Response timing middleware
+- API versioning under `/api/v1`
 
 ---
 
@@ -87,36 +84,39 @@ PostgreSQL is the primary data store. Redis is used for fleet-board caching and 
 
 ### Backend
 
-* Python 3.13+
-* FastAPI
-* SQLModel
-* Pydantic Settings
-* PyJWT
-* bcrypt
+![Python](https://img.shields.io/badge/Python-3.13%2B-3776AB?style=flat-square&logo=python&logoColor=white)
+![FastAPI](https://img.shields.io/badge/FastAPI-0.141.1%2B-009688?style=flat-square&logo=fastapi&logoColor=white)
+![SQLModel](https://img.shields.io/badge/SQLModel-0.0.42%2B-4B5563?style=flat-square)
+![Pydantic Settings](https://img.shields.io/badge/Pydantic%20Settings-Configuration-E92063?style=flat-square)
+![PyJWT](https://img.shields.io/badge/PyJWT-Authentication-000000?style=flat-square&logo=jsonwebtokens&logoColor=white)
+![Bcrypt](https://img.shields.io/badge/Bcrypt-Password%20Hashing-6B7280?style=flat-square)
 
-### Database
+### Database & Caching
 
-* PostgreSQL 17
-* Alembic
-* Psycopg
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-17-4169E1?style=flat-square&logo=postgresql&logoColor=white)
+![Redis](https://img.shields.io/badge/Redis-7-DC382D?style=flat-square&logo=redis&logoColor=white)
+![Firestore](https://img.shields.io/badge/Firestore-Firebase-FFCA28?style=flat-square&logo=firebase&logoColor=black)
+![Psycopg](https://img.shields.io/badge/Psycopg-PostgreSQL%20Driver-336791?style=flat-square)
 
-### Infrastructure
+### Payments & Integrations
 
-* Docker
-* Docker Compose
-* Redis 7
-* MailHog
-* uv
+![Webhooks](https://img.shields.io/badge/Webhooks-HMAC--SHA256-4B5563?style=flat-square)
+![SMTP](https://img.shields.io/badge/SMTP-Email-6B7280?style=flat-square)
+![SSE](https://img.shields.io/badge/SSE-Live%20Updates-FF6B35?style=flat-square)
 
-### External Integration
+### Database Migrations & Testing
 
-* Google Cloud Firestore through the Firebase Admin SDK
-* SMTP
+![Alembic](https://img.shields.io/badge/Alembic-1.20%2B-4B5563?style=flat-square)
+![Pytest](https://img.shields.io/badge/Pytest-9.1%2B-0A9EDC?style=flat-square&logo=pytest&logoColor=white)
+![Ruff](https://img.shields.io/badge/Ruff-Linting-D7FF64?style=flat-square&logo=ruff&logoColor=black)
 
-### Testing and Code Quality
+### DevOps & Tooling
 
-* Pytest
-* Ruff
+![Docker](https://img.shields.io/badge/Docker-Containerization-2496ED?style=flat-square&logo=docker&logoColor=white)
+![Docker Compose](https://img.shields.io/badge/Docker%20Compose-Infrastructure-2496ED?style=flat-square&logo=docker&logoColor=white)
+![uv](https://img.shields.io/badge/uv-Package%20Manager-6E56CF?style=flat-square)
+
+> The project contains a GitHub Actions-style CI definition in `test.yaml`, but it is not currently located under `.github/workflows/`, so GitHub Actions is not presented as an active CI badge.
 
 ---
 
@@ -217,17 +217,15 @@ The state machine is the single place responsible for changing rental state.
 
 Business operations update PostgreSQL first and commit before triggering external side effects such as:
 
-* Redis invalidation
-* Firestore writes
-* SSE events
+- Redis invalidation
+- Firestore writes
+- SSE events
 
 This prevents external consumers from being notified about changes that later roll back.
 
 ---
 
 ## Project Structure
-
-The following reflects the supplied project structure, excluding the `.git` internals and generated Python cache directories.
 
 ```text
 FleetGo_car_project/
@@ -371,20 +369,16 @@ FleetGo_car_project/
         └── test_workshop.py
 ```
 
-A Firebase service-account JSON credential file is also present in the supplied archive. Its filename and contents are intentionally not documented here.
-
 ---
 
 ## Installation
 
 ### Requirements
 
-The project requires:
-
-* Python 3.13 or newer
-* Docker
-* Docker Compose
-* uv
+- Python 3.13 or newer
+- Docker
+- Docker Compose
+- uv
 
 The normal development setup uses Docker for PostgreSQL, Redis, MailHog, and the API.
 
@@ -408,10 +402,10 @@ docker compose up -d --build
 
 This starts:
 
-* FleetGo API
-* PostgreSQL
-* Redis
-* MailHog
+- FleetGo API
+- PostgreSQL
+- Redis
+- MailHog
 
 ### 3. Apply database migrations
 
@@ -425,21 +419,19 @@ docker compose exec api uv run alembic upgrade head
 
 ### 4. Check the API
 
-The interactive FastAPI documentation is available at:
+Interactive FastAPI documentation:
 
 ```text
 http://localhost:8000/docs
 ```
 
-A simple database connectivity endpoint is also available:
+Database connectivity endpoint:
 
 ```text
 GET http://localhost:8000/test-db
 ```
 
 ### 5. Seed the first manager
-
-The project includes an idempotent bootstrap script for creating the initial manager account:
 
 ```bash
 docker compose exec api uv run python -m app.db.seed
@@ -455,23 +447,23 @@ The credentials hardcoded in the seed script are intentionally not reproduced in
 
 Settings are loaded by `app/core/config.py` using Pydantic Settings and `.env`.
 
-| Variable                      | Required | Default / Notes                                   |
-| ----------------------------- | -------- | ------------------------------------------------- |
-| `DATABASE_URL`                | Yes      | PostgreSQL connection string                      |
-| `TEST_DATABASE_URL`           | No       | Separate PostgreSQL database used by tests        |
-| `REDIS_URL`                   | Yes      | Redis connection string                           |
-| `JWT_SECRET`                  | Yes      | Secret used to sign JWTs                          |
-| `JWT_ALGORITHM`               | No       | Defaults to `HS256`                               |
-| `ACCESS_TOKEN_EXPIRE_MINUTES` | No       | Defaults to `30`                                  |
-| `BCRYPT_ROUNDS`               | No       | Defaults to `12`                                  |
-| `WEBHOOK_SECRET`              | Yes      | Secret used for payment webhook HMAC verification |
-| `SMTP_HOST`                   | No       | SMTP server hostname                              |
-| `SMTP_PORT`                   | No       | Defaults to `587`                                 |
-| `SMTP_USERNAME`               | No       | SMTP username                                     |
-| `SMTP_PASSWORD`               | No       | SMTP password                                     |
-| `SMTP_FROM_EMAIL`             | No       | Sender email                                      |
-| `FIRESTORE_CREDENTIALS_PATH`  | Yes      | Path to the Firestore service-account JSON file   |
-| `API_PREFIX`                  | No       | Defaults to `/api/v1`                             |
+| Variable | Required | Default / Notes |
+|---|---|---|
+| `DATABASE_URL` | Yes | PostgreSQL connection string |
+| `TEST_DATABASE_URL` | No | Separate PostgreSQL database used by tests |
+| `REDIS_URL` | Yes | Redis connection string |
+| `JWT_SECRET` | Yes | Secret used to sign JWTs |
+| `JWT_ALGORITHM` | No | Defaults to `HS256` |
+| `ACCESS_TOKEN_EXPIRE_MINUTES` | No | Defaults to `30` |
+| `BCRYPT_ROUNDS` | No | Defaults to `12` |
+| `WEBHOOK_SECRET` | Yes | Secret used for payment webhook HMAC verification |
+| `SMTP_HOST` | No | SMTP server hostname |
+| `SMTP_PORT` | No | Defaults to `587` |
+| `SMTP_USERNAME` | No | SMTP username |
+| `SMTP_PASSWORD` | No | SMTP password |
+| `SMTP_FROM_EMAIL` | No | Sender email |
+| `FIRESTORE_CREDENTIALS_PATH` | Yes | Path to the Firestore service-account JSON file |
+| `API_PREFIX` | No | Defaults to `/api/v1` |
 
 Do not commit real values for:
 
@@ -494,28 +486,13 @@ redis:6379
 mailhog:1025
 ```
 
-From the host machine, PostgreSQL is exposed on:
+From the host machine:
 
 ```text
-localhost:5433
-```
-
-Redis is exposed on:
-
-```text
-localhost:6379
-```
-
-MailHog is exposed on:
-
-```text
-localhost:1025
-```
-
-and its web interface is exposed on:
-
-```text
-localhost:8025
+PostgreSQL → localhost:5433
+Redis      → localhost:6379
+MailHog    → localhost:1025
+MailHog UI → localhost:8025
 ```
 
 ---
@@ -528,18 +505,16 @@ SQLModel provides the model layer and SQLAlchemy provides the underlying databas
 
 ### Database Tables
 
-The models define the following tables:
-
-| Table              | Purpose                                          |
-| ------------------ | ------------------------------------------------ |
-| `users`            | Application users and roles                      |
-| `cars`             | Fleet vehicles                                   |
-| `rentals`          | Customer rental reservations and lifecycle state |
-| `pricing`          | Pricing by car class                             |
-| `payments`         | Payments recorded against rentals                |
-| `state_history`    | Accepted rental state transitions                |
-| `workshop_visits`  | Car workshop visits                              |
-| `processed_events` | Payment webhook idempotency records              |
+| Table | Purpose |
+|---|---|
+| `users` | Application users and roles |
+| `cars` | Fleet vehicles |
+| `rentals` | Customer rental reservations and lifecycle state |
+| `pricing` | Pricing by car class |
+| `payments` | Payments recorded against rentals |
+| `state_history` | Accepted rental state transitions |
+| `workshop_visits` | Car workshop visits |
+| `processed_events` | Payment webhook idempotency records |
 
 ### Users
 
@@ -559,10 +534,10 @@ Passwords are stored as bcrypt hashes rather than plaintext passwords.
 
 Cars contain:
 
-* plate number
-* car class
-* physical status
-* mileage
+- plate number
+- car class
+- physical status
+- mileage
 
 Car classes currently represented by the model are:
 
@@ -584,12 +559,12 @@ IN_WORKSHOP
 
 A rental contains:
 
-* customer
-* car
-* start time
-* end time
-* state
-* total
+- customer
+- car
+- start time
+- end time
+- state
+- total
 
 The rental table has a composite index on:
 
@@ -603,12 +578,12 @@ This supports the date-overlap availability query.
 
 Payment records contain:
 
-* rental
-* payment kind
-* payment method
-* amount
-* recording user
-* timestamp
+- rental
+- payment kind
+- payment method
+- amount
+- recording user
+- timestamp
 
 Payment kinds:
 
@@ -685,9 +660,9 @@ All feature routers are mounted under:
 /api/v1
 ```
 
-The prefix is configured once through `API_PREFIX`.
+The prefix is configured through `API_PREFIX`.
 
-Interactive API documentation is available through FastAPI at:
+Interactive API documentation:
 
 ```text
 http://localhost:8000/docs
@@ -703,7 +678,7 @@ POST /api/v1/auth/register
 
 Public endpoint.
 
-Registration always creates a `customer`. The client cannot use this endpoint to create an agent or manager.
+Registration always creates a `customer`.
 
 Example:
 
@@ -748,8 +723,6 @@ agent
 manager
 ```
 
-It rejects attempts to create a customer through this route.
-
 ---
 
 ## Cars
@@ -787,9 +760,9 @@ end
 
 A car is excluded when:
 
-* it is currently in the workshop, or
-* it has a `RESERVED` rental overlapping the requested period, or
-* it has an `ACTIVE` rental overlapping the requested period.
+- it is currently in the workshop
+- it has a `RESERVED` rental overlapping the requested period
+- it has an `ACTIVE` rental overlapping the requested period
 
 The overlap condition is:
 
@@ -870,7 +843,7 @@ Optional request body:
 }
 ```
 
-The valid transition is:
+Valid transition:
 
 ```text
 RESERVED → ACTIVE
@@ -893,7 +866,7 @@ Example:
 }
 ```
 
-The valid transition is:
+Valid transition:
 
 ```text
 ACTIVE → RETURNED
@@ -901,9 +874,9 @@ ACTIVE → RETURNED
 
 At return:
 
-* late fees are calculated server-side
-* damage charges are added to the rental total
-* a damage payment is recorded when the damage charge is greater than zero
+- late fees are calculated server-side
+- damage charges are added to the rental total
+- a damage payment is recorded when the damage charge is greater than zero
 
 ### Cancel a Rental
 
@@ -911,7 +884,7 @@ At return:
 POST /api/v1/rentals/{rental_id}/cancel
 ```
 
-The valid transition is:
+Valid transition:
 
 ```text
 RESERVED → CANCELLED
@@ -923,7 +896,11 @@ Other state transitions are rejected with a conflict response.
 
 ## Rental State Machine
 
-The allowed transitions are explicitly defined in `app/features/rentals/state_machine.py`:
+The allowed transitions are explicitly defined in:
+
+```text
+app/features/rentals/state_machine.py
+```
 
 ```text
 RESERVED → ACTIVE
@@ -939,23 +916,7 @@ Before changing a rental, the state machine performs a locking database read usi
 SELECT ... FOR UPDATE
 ```
 
-This is important for concurrent pickup requests.
-
-For example, if two agents attempt to pick up the same reserved rental at approximately the same time:
-
-```text
-Agent A ──┐
-          ├── SELECT ... FOR UPDATE ──► rental
-Agent B ──┘
-```
-
-Only one transaction can acquire the row lock and complete:
-
-```text
-RESERVED → ACTIVE
-```
-
-The other request sees that the rental is no longer in a valid source state and receives a conflict response.
+This protects concurrent pickup operations.
 
 Every successful transition creates a corresponding `state_history` row.
 
@@ -973,7 +934,7 @@ The implementation guarantees at least one billed day for a same-day rental.
 
 Late fees are calculated separately when a rental is returned.
 
-If the actual return time is:
+If:
 
 ```text
 actual_return_at <= end_at
@@ -989,9 +950,7 @@ When the return is late, any partial late day is counted as a full day.
 
 There are two payment paths.
 
-### Agent-recorded payments
-
-Agents can record payments against an existing rental:
+### Agent-recorded Payments
 
 ```http
 POST /api/v1/rentals/{rental_id}/payments
@@ -1024,7 +983,7 @@ POST /api/v1/webhooks/payment
 
 This endpoint does not use JWT authentication.
 
-Instead, the request must contain:
+The request must contain:
 
 ```http
 X-Signature: <signature>
@@ -1034,7 +993,7 @@ The signature is calculated using HMAC-SHA256 over the raw request body.
 
 The raw body is read before Pydantic validation so the exact bytes received by the API are used for verification.
 
-The webhook payload contains:
+Example payload:
 
 ```json
 {
@@ -1051,14 +1010,14 @@ The webhook service uses `reference` as the rental ID.
 
 Webhook behavior:
 
-| Situation                        | Response behavior   |
-| -------------------------------- | ------------------- |
-| Valid event with existing rental | `confirmed`         |
-| Same event delivered again       | `already processed` |
-| Unknown rental reference         | `orphan`            |
-| Invalid signature                | `401`               |
+| Situation | Response behavior |
+|---|---|
+| Valid event with existing rental | `confirmed` |
+| Same event delivered again | `already processed` |
+| Unknown rental reference | `orphan` |
+| Invalid signature | `401` |
 
-The webhook currently records the processed event in `processed_events`. It does not create a `Payment` row from the webhook payload.
+The webhook records the processed event in `processed_events`. It does not create a `Payment` row from the webhook payload.
 
 ---
 
@@ -1136,9 +1095,9 @@ IN_WORKSHOP → AVAILABLE
 
 Workshop visits are stored in `workshop_visits` with:
 
-* `opened_at`
-* `closed_at`
-* `comment`
+- `opened_at`
+- `closed_at`
+- `comment`
 
 ---
 
@@ -1278,33 +1237,26 @@ The default access-token expiration is:
 
 Role protection is implemented through the reusable `require_role()` dependency.
 
-Examples include:
-
-```text
-manager
-agent
-```
-
 Manager-protected operations include:
 
-* creating cars
-* changing pricing
-* workshop operations
-* fleet board access
-* fleet stream access
-* creating staff accounts
+- creating cars
+- changing pricing
+- workshop operations
+- fleet board access
+- fleet stream access
+- creating staff accounts
 
 Agent-protected operations include:
 
-* rental pickup
-* rental return
-* recording rental payments
+- rental pickup
+- rental return
+- recording rental payments
 
 Public operations include:
 
-* registration
-* login
-* availability search
+- registration
+- login
+- availability search
 
 Customers create rentals using their authenticated identity.
 
@@ -1314,7 +1266,7 @@ Customers create rentals using their authenticated identity.
 
 ### Redis
 
-Redis is used for two separate purposes:
+Redis is used for:
 
 ```text
 Fleet board caching
@@ -1330,7 +1282,7 @@ fleet_board
 dispatch_feed
 ```
 
-The PostgreSQL database remains the primary source of truth for the application's main relational data.
+PostgreSQL remains the primary source of truth for the application's main relational data.
 
 Firestore writes are performed through `save_document()`.
 
@@ -1355,10 +1307,8 @@ When SMTP is not configured, the email adapter returns a structured stub result 
 
 Docker Compose includes MailHog for local SMTP testing.
 
-MailHog exposes:
-
 ```text
-SMTP: localhost:1025
+SMTP:   localhost:1025
 Web UI: http://localhost:8025
 ```
 
@@ -1368,10 +1318,10 @@ Web UI: http://localhost:8025
 
 FleetGo registers centralized handlers for:
 
-* HTTP exceptions
-* request validation errors
+- HTTP exceptions
+- request validation errors
 
-Responses include a consistent error envelope containing:
+Responses include a consistent error envelope:
 
 ```json
 {
@@ -1436,17 +1386,11 @@ The API is built from the project Dockerfile and runs on:
 8000
 ```
 
-The container uses:
-
-```text
-uv
-```
-
-for dependency management and application execution.
+The container uses `uv` for dependency management and application execution.
 
 ### PostgreSQL
 
-The Docker Compose PostgreSQL service uses:
+Docker Compose uses:
 
 ```text
 PostgreSQL 17
@@ -1464,7 +1408,7 @@ Published host port:
 5433
 ```
 
-A named Docker volume is used:
+Named volume:
 
 ```text
 postgres_data
@@ -1472,13 +1416,13 @@ postgres_data
 
 ### Redis
 
-The Redis service uses:
+Docker Compose uses:
 
 ```text
 Redis 7
 ```
 
-and exposes port:
+Port:
 
 ```text
 6379
@@ -1534,36 +1478,34 @@ Firestore is disabled during tests by clearing the configured credential path.
 docker compose exec api uv run pytest -v
 ```
 
-The supplied test files contain 34 collected test cases when the parametrized payment test is counted by its individual cases.
-
 Coverage includes:
 
-* authentication
-* customer registration
-* login notifications
-* car creation
-* duplicate plate protection
-* availability search
-* pricing
-* payment recording
-* terminal-rental payment restrictions
-* rental creation
-* rental pickup
-* rental return
-* late fees
-* damage payments
-* rental state transitions
-* state-history records
-* concurrent pickup behavior
-* payment webhook signatures
-* webhook idempotency
-* orphan webhook events
-* workshop transitions
-* Firestore adapter behavior
-* email adapter behavior
-* SSE event publishing
+- authentication
+- customer registration
+- login notifications
+- car creation
+- duplicate plate protection
+- availability search
+- pricing
+- payment recording
+- terminal-rental payment restrictions
+- rental creation
+- rental pickup
+- rental return
+- late fees
+- damage payments
+- rental state transitions
+- state-history records
+- concurrent pickup behavior
+- payment webhook signatures
+- webhook idempotency
+- orphan webhook events
+- workshop transitions
+- Firestore adapter behavior
+- email adapter behavior
+- SSE event publishing
 
-The project files do not provide a current test-run output that can independently verify that all 34 tests are passing at the time this README is generated, so this README does not claim a current passing test count.
+The supplied project files do not provide a current test-run output that independently verifies a current passing test count, so this README does not claim a current passing test count.
 
 ---
 
@@ -1600,26 +1542,24 @@ The project configuration also specifies an 88-character line length.
 
 ## CI/CD
 
-There is currently no `.github/workflows/` directory in the supplied project.
-
-A file named:
+The repository contains:
 
 ```text
 test.yaml
 ```
 
-exists at the project root and contains a GitHub Actions-style CI definition.
+with a GitHub Actions-style CI definition.
 
-It defines:
+The configuration defines:
 
-* PostgreSQL 17 service
-* Redis 7 service
-* `uv` setup
-* dependency synchronization
-* Ruff linting
-* Pytest execution
+- PostgreSQL 17 service
+- Redis 7 service
+- `uv` setup
+- dependency synchronization
+- Ruff linting
+- Pytest execution
 
-The commands in that file are:
+The CI commands are:
 
 ```bash
 uv sync --frozen
@@ -1627,11 +1567,15 @@ uvx ruff check .
 uv run pytest -v
 ```
 
-However, `test.yaml` is located at the repository root rather than `.github/workflows/`, and it is also listed in `.gitignore`.
+The file is currently located at the project root rather than:
 
-Therefore, the supplied project does not contain an active GitHub Actions workflow in the standard GitHub Actions location.
+```text
+.github/workflows/
+```
 
-The existing `LOG.md` contains historical notes describing earlier CI work, but those notes do not change the current repository configuration.
+and is also listed in `.gitignore`.
+
+Therefore, the supplied project does not currently contain an active GitHub Actions workflow in the standard GitHub Actions directory.
 
 ---
 
@@ -1676,7 +1620,7 @@ POST /api/v1/auth/register
 POST /api/v1/auth/login
 ```
 
-Use the returned access token as:
+Use the returned access token:
 
 ```http
 Authorization: Bearer <access_token>
@@ -1748,8 +1692,6 @@ Optional:
 POST /api/v1/rentals/1/return
 ```
 
-Example:
-
 ```json
 {
   "damage_charge": "5000.00",
@@ -1763,7 +1705,7 @@ Example:
 GET /api/v1/fleet/board
 ```
 
-or opens the SSE stream:
+or:
 
 ```http
 GET /api/v1/fleet/stream
@@ -1805,8 +1747,6 @@ The foreign key therefore lives on:
 rentals.car_id
 ```
 
-rather than adding a current-rental pointer to the car.
-
 ### The state machine owns rental transitions
 
 Rental state changes are centralized in:
@@ -1837,11 +1777,11 @@ The approach prevents a concurrent pickup race from producing two successful `AC
 
 Every successful state transition creates a `StateHistory` record containing:
 
-* rental
-* previous state
-* new state
-* actor
-* timestamp
+- rental
+- previous state
+- new state
+- actor
+- timestamp
 
 Rejected transitions do not create state-history rows.
 
@@ -1859,7 +1799,7 @@ SELECT → if missing → INSERT
 
 The API verifies the signature before Pydantic parses the payload.
 
-This matters because parsing and serializing JSON again can change the exact bytes used for the signature.
+This ensures the signature is calculated against the exact request bytes received by the API.
 
 ### Authentication uses bcrypt and JWT
 
@@ -1867,12 +1807,12 @@ Passwords use bcrypt.
 
 JWTs are used for authenticated API requests.
 
-The two mechanisms serve different purposes:
+The mechanisms serve different purposes:
 
 ```text
-bcrypt     → password hashing
+bcrypt      → password hashing
 HMAC-SHA256 → webhook message authentication
-JWT        → API authentication/session token
+JWT         → API authentication
 ```
 
 ### External side effects happen after database commits
@@ -1895,11 +1835,11 @@ and applied when routers are included in `main.py`.
 
 ## Known Limitations
 
-### No active GitHub Actions workflow
+### GitHub Actions workflow location
 
 The repository contains `test.yaml`, but it is not located in `.github/workflows/` and is ignored by `.gitignore`.
 
-Therefore, the supplied project does not currently contain an active GitHub Actions workflow in the standard location.
+Therefore, it is not currently an active GitHub Actions workflow in the standard GitHub configuration.
 
 ### No deployment configuration
 
@@ -1911,13 +1851,11 @@ The signed payment webhook validates and records the event in `processed_events`
 
 It does not create a row in the `payments` table from the webhook payload.
 
-Agent-recorded payments use the separate:
+Agent-recorded payments use:
 
 ```text
 POST /api/v1/rentals/{rental_id}/payments
 ```
-
-endpoint.
 
 ### Firestore configuration is required by Settings
 
@@ -1929,7 +1867,7 @@ The Firestore integration itself is designed to stub writes when the configured 
 
 Mileage can be supplied during pickup and is written to the car.
 
-The return schema currently accepts damage charges and payment method, but does not contain a mileage or vehicle-condition field.
+The return schema accepts damage charges and payment method, but does not contain a mileage or vehicle-condition field.
 
 Some older test calls contain fields such as `mileage` and `condition` in return payloads, but the current `RentalReturn` schema does not define those fields.
 
@@ -1939,7 +1877,7 @@ The SSE broadcaster stores subscribers in process memory.
 
 The supplied project does not contain a distributed event broker for coordinating SSE subscribers across multiple API processes.
 
-### Firestore credentials file in the supplied archive
+### Firestore credentials
 
 A Firebase service-account JSON credential file is present in the supplied project archive.
 
@@ -1959,25 +1897,25 @@ No additional roadmap is documented here beyond improvements directly supported 
 
 The current source contains the main FleetGo backend functionality across:
 
-* authentication and authorization
-* cars and availability
-* pricing
-* rentals
-* rental state transitions
-* state-history auditing
-* payments
-* payment webhooks
-* workshop management
-* Redis caching
-* rate limiting
-* SSE fleet events
-* Firestore integration
-* SMTP notifications
-* Docker-based local infrastructure
-* Alembic migrations
-* automated tests
+- authentication and authorization
+- cars and availability
+- pricing
+- rentals
+- rental state transitions
+- state-history auditing
+- payments
+- payment webhooks
+- workshop management
+- Redis caching
+- rate limiting
+- SSE fleet events
+- Firestore integration
+- SMTP notifications
+- Docker-based local infrastructure
+- Alembic migrations
+- automated tests
 
-The project also contains configuration and test files for linting and CI, but there is no active GitHub Actions workflow under `.github/workflows/`.
+The project also contains configuration and test files for linting and CI, but the GitHub Actions-style workflow is not currently located under `.github/workflows/`.
 
 The source and historical `LOG.md` contain some conflicting status information. In particular, `LOG.md` records a scheduled stale-reservation cancellation job as having been merged, but no scheduler or scheduled-job implementation is present in the supplied source tree. This README therefore does not describe such a job as an implemented feature.
 
@@ -1986,6 +1924,3 @@ The source and historical `LOG.md` contain some conflicting status information. 
 ## License
 
 No license file or explicit project license is present in the supplied project.
-
-```
-```
