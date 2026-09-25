@@ -1,4 +1,24 @@
-# FleetGo
+# FleetGo Car Project
+![Python](https://img.shields.io/badge/Python-3.13%2B-3776AB?style=flat-square&logo=python&logoColor=white)
+![FastAPI](https://img.shields.io/badge/FastAPI-0.141.1%2B-009688?style=flat-square&logo=fastapi&logoColor=white)
+![SQLModel](https://img.shields.io/badge/SQLModel-0.0.42%2B-4B5563?style=flat-square)
+![Pydantic Settings](https://img.shields.io/badge/Pydantic%20Settings-Configuration-E92063?style=flat-square)
+![PyJWT](https://img.shields.io/badge/PyJWT-Authentication-000000?style=flat-square&logo=jsonwebtokens&logoColor=white)
+![Bcrypt](https://img.shields.io/badge/Bcrypt-Password%20Hashing-6B7280?style=flat-square)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-17-4169E1?style=flat-square&logo=postgresql&logoColor=white)
+![Redis](https://img.shields.io/badge/Redis-7-DC382D?style=flat-square&logo=redis&logoColor=white)
+![Firestore](https://img.shields.io/badge/Firestore-Firebase-FFCA28?style=flat-square&logo=firebase&logoColor=black)
+![Psycopg](https://img.shields.io/badge/Psycopg-PostgreSQL%20Driver-336791?style=flat-square)
+![Webhooks](https://img.shields.io/badge/Webhooks-HMAC--SHA256-4B5563?style=flat-square)
+![SMTP](https://img.shields.io/badge/SMTP-Email-6B7280?style=flat-square)
+![SSE](https://img.shields.io/badge/SSE-Live%20Updates-FF6B35?style=flat-square)
+![Alembic](https://img.shields.io/badge/Alembic-1.20%2B-4B5563?style=flat-square)
+![Pytest](https://img.shields.io/badge/Pytest-9.1%2B-0A9EDC?style=flat-square&logo=pytest&logoColor=white)
+![Ruff](https://img.shields.io/badge/Ruff-Linting-D7FF64?style=flat-square&logo=ruff&logoColor=black)
+![Docker](https://img.shields.io/badge/Docker-Containerization-2496ED?style=flat-square&logo=docker&logoColor=white)
+![Docker Compose](https://img.shields.io/badge/Docker%20Compose-Infrastructure-2496ED?style=flat-square&logo=docker&logoColor=white)
+![uv](https://img.shields.io/badge/uv-Package%20Manager-6E56CF?style=flat-square)
+
 
 FleetGo is a FastAPI backend for car rental and fleet management. It handles customer registration and authentication, vehicle availability, rental reservations, rental state transitions, payments, workshop status, fleet reporting, signed payment webhooks, Redis caching and rate limiting, Server-Sent Events, Firestore integration, and SMTP notifications.
 
